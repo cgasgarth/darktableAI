@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+*.log
+
+# validation outputs
+artifacts/
+outputs/
+tmp/
+
+# editor and OS noise
+.DS_Store
+.idea/
+.vscode/
