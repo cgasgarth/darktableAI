@@ -7,11 +7,19 @@ Main product repo for the AI-assisted photo editing system built around darktabl
 - Use darktable as the deterministic photo-processing worker.
 - Build the product control plane here.
 - Keep darktable-specific fork changes in `../darktable`.
+- Use Bun and strict TypeScript for the main product code.
+- Work on branches and merge through PRs rather than pushing directly to `main`.
 
 ## Recommended stack
 
 - TypeScript for the API server, worker orchestration, CLI, schemas, and validation tooling.
 - Optional Python only for narrow ML or image-analysis experiments that benefit from the Python ecosystem.
+
+## Working rules
+
+- Prefer dependency injection and explicit interfaces around class-based code.
+- Keep API contracts strict: avoid ambiguous optional inputs, defaults, and fallbacks.
+- Run `bun run check` before merge; the local hooks do this automatically on commit.
 
 ## Near-term goals
 
