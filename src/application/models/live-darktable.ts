@@ -30,6 +30,70 @@ export interface LiveDarktableExposureChange {
   readonly requestedRenderSequence: number;
 }
 
+export interface LiveDarktableSnapshotControlRequirement {
+  readonly activeImage: boolean;
+  readonly view: string;
+}
+
+export interface LiveDarktableSnapshotControlValueType {
+  readonly type: string;
+  readonly minimum?: number;
+  readonly maximum?: number;
+}
+
+export interface LiveDarktableSnapshotControl {
+  readonly id: string;
+  readonly module: string;
+  readonly control: string;
+  readonly operations: ReadonlyArray<string>;
+  readonly requires: LiveDarktableSnapshotControlRequirement;
+  readonly valueType: LiveDarktableSnapshotControlValueType;
+  readonly value: unknown;
+}
+
+export type LiveDarktableSnapshotControls = ReadonlyArray<LiveDarktableSnapshotControl>;
+
+export interface LiveDarktableSnapshotParamField {
+  readonly path: string;
+  readonly kind: string;
+  readonly value: unknown;
+}
+
+export interface LiveDarktableSnapshotParamsIntrospection {
+  readonly encoding: "introspection-v1";
+  readonly fields: ReadonlyArray<LiveDarktableSnapshotParamField>;
+}
+
+export interface LiveDarktableSnapshotParamsUnsupported {
+  readonly encoding: "unsupported";
+}
+
+export type LiveDarktableSnapshotParams =
+  | LiveDarktableSnapshotParamsIntrospection
+  | LiveDarktableSnapshotParamsUnsupported;
+
+export interface LiveDarktableSnapshotModuleState {
+  readonly instanceKey: string;
+  readonly moduleOp: string;
+  readonly enabled: boolean;
+  readonly iopOrder: number;
+  readonly multiPriority: number;
+  readonly multiName: string;
+  readonly params: LiveDarktableSnapshotParams;
+}
+
+export interface LiveDarktableSnapshotHistoryItem extends LiveDarktableSnapshotModuleState {
+  readonly index: number;
+  readonly applied: boolean;
+}
+
+export interface LiveDarktableSnapshotState {
+  readonly appliedHistoryEnd: number;
+  readonly controls: LiveDarktableSnapshotControls;
+  readonly moduleStack: ReadonlyArray<LiveDarktableSnapshotModuleState>;
+  readonly historyItems: ReadonlyArray<LiveDarktableSnapshotHistoryItem>;
+}
+
 interface LiveDarktableStateCommon {
   readonly bridgeVersion: 1;
   readonly status: "ok" | "unavailable";
@@ -39,6 +103,7 @@ interface LiveDarktableStateCommon {
 export interface LiveDarktableUnavailableState extends LiveDarktableStateCommon {
   readonly status: "unavailable";
   readonly reason?: "unsupported-view" | "no-active-image";
+  readonly session?: LiveDarktableSessionState;
 }
 
 export interface LiveDarktableAvailableSessionState extends LiveDarktableStateCommon {
@@ -55,12 +120,23 @@ export interface LiveDarktableAvailableExposureState extends LiveDarktableStateC
   readonly exposure: LiveDarktableExposureChange;
 }
 
+export interface LiveDarktableAvailableSnapshotState extends LiveDarktableStateCommon {
+  readonly status: "ok";
+  readonly session: LiveDarktableSessionState;
+  readonly activeImage: LiveDarktableActiveImage;
+  readonly snapshot: LiveDarktableSnapshotState;
+}
+
 export type LiveDarktableSessionSnapshot =
   | LiveDarktableAvailableSessionState
   | LiveDarktableUnavailableState;
 
 export type LiveDarktableExposureMutation =
   | LiveDarktableAvailableExposureState
+  | LiveDarktableUnavailableState;
+
+export type LiveDarktableSnapshotReadback =
+  | LiveDarktableAvailableSnapshotState
   | LiveDarktableUnavailableState;
 
 export interface LiveDarktableSetExposureWaitPolicy {

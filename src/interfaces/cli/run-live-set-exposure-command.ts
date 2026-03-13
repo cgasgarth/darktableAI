@@ -54,6 +54,7 @@ export class RunLiveSetExposureCommand
             status: response.latestSession.status,
             diagnostics: response.helperCallDiagnostics,
             wait: response.wait,
+            ...(response.latestSession.session === undefined ? {} : { session: response.latestSession.session }),
             ...(response.latestSession.reason === undefined ? {} : { reason: response.latestSession.reason })
           }
         };

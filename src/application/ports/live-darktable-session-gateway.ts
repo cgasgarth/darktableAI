@@ -1,5 +1,6 @@
 import type {
   LiveDarktableExposureMutation,
+  LiveDarktableSnapshotReadback,
   LiveDarktableSessionSnapshot
 } from "../models/live-darktable";
 
@@ -9,5 +10,6 @@ export interface SetLiveDarktableExposureRequest {
 
 export interface LiveDarktableSessionGateway {
   getSession(): Promise<LiveDarktableSessionSnapshot>;
+  getSnapshot(): Promise<LiveDarktableSnapshotReadback>;
   setExposure(request: SetLiveDarktableExposureRequest): Promise<LiveDarktableExposureMutation>;
 }

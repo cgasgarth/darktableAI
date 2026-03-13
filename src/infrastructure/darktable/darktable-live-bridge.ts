@@ -3,6 +3,7 @@ import path from "node:path";
 import type {
   LiveDarktableCommandDiagnostics,
   LiveDarktableExposureMutation,
+  LiveDarktableSnapshotReadback,
   LiveDarktableSessionSnapshot
 } from "../../application/models/live-darktable";
 import type {
@@ -31,6 +32,11 @@ export class DarktableLiveBridge implements LiveDarktableSessionGateway {
   public async getSession(): Promise<LiveDarktableSessionSnapshot> {
     const execution = await this.runBridgeCommand(["get-session"]);
     return this.parser.parseGetSession(execution.stdout, execution.diagnostics);
+  }
+
+  public async getSnapshot(): Promise<LiveDarktableSnapshotReadback> {
+    const execution = await this.runBridgeCommand(["get-snapshot"]);
+    return this.parser.parseGetSnapshot(execution.stdout, execution.diagnostics);
   }
 
   public async setExposure(

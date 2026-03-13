@@ -43,6 +43,12 @@ describe("StrictCliInvocationParser", () => {
     expect(parser.parse(["live-session-info"])).toEqual({ kind: "live-session-info" });
   });
 
+  test("parses live-session-snapshot command with no arguments", () => {
+    const parser = new StrictCliInvocationParser();
+
+    expect(parser.parse(["live-session-snapshot"])).toEqual({ kind: "live-session-snapshot" });
+  });
+
   test("parses live-set-exposure without polling", () => {
     const parser = new StrictCliInvocationParser();
 

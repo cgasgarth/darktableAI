@@ -1,26 +1,26 @@
-import type { LiveDarktableSessionSnapshot } from "../../application/models/live-darktable";
-import type { GetLiveDarktableSessionRequest } from "../../application/use-cases/get-live-darktable-session";
-import type { LiveSessionInfoResponse } from "../api/http-contracts";
+import type { LiveDarktableSnapshotReadback } from "../../application/models/live-darktable";
+import type { GetLiveDarktableSnapshotRequest } from "../../application/use-cases/get-live-darktable-snapshot";
+import type { LiveSessionSnapshotResponse } from "../api/http-contracts";
 import type { CliCommand, CliCommandResult } from "./cli-command";
 
-interface GetLiveDarktableSessionPort {
-  execute(request: GetLiveDarktableSessionRequest): Promise<LiveDarktableSessionSnapshot>;
+interface GetLiveDarktableSnapshotPort {
+  execute(request: GetLiveDarktableSnapshotRequest): Promise<LiveDarktableSnapshotReadback>;
 }
 
-export interface RunLiveSessionInfoCommandInput {
+export interface RunLiveSessionSnapshotCommandInput {
   readonly requestId: string;
 }
 
-export class RunLiveSessionInfoCommand
-  implements CliCommand<RunLiveSessionInfoCommandInput, LiveSessionInfoResponse>
+export class RunLiveSessionSnapshotCommand
+  implements CliCommand<RunLiveSessionSnapshotCommandInput, LiveSessionSnapshotResponse>
 {
-  public constructor(private readonly getLiveDarktableSession: GetLiveDarktableSessionPort) {}
+  public constructor(private readonly getLiveDarktableSnapshot: GetLiveDarktableSnapshotPort) {}
 
   public async execute(
-    input: RunLiveSessionInfoCommandInput
-  ): Promise<CliCommandResult<LiveSessionInfoResponse>> {
+    input: RunLiveSessionSnapshotCommandInput
+  ): Promise<CliCommandResult<LiveSessionSnapshotResponse>> {
     try {
-      const response = await this.getLiveDarktableSession.execute({});
+      const response = await this.getLiveDarktableSnapshot.execute({});
 
       if (response.status === "unavailable") {
         return {
@@ -44,8 +44,8 @@ export class RunLiveSessionInfoCommand
           status: response.status,
           diagnostics: response.diagnostics,
           session: response.session,
-          ...(response.activeImage === undefined ? {} : { activeImage: response.activeImage }),
-          ...(response.exposure === undefined ? {} : { exposure: response.exposure })
+          activeImage: response.activeImage,
+          snapshot: response.snapshot
         }
       };
     } catch (error: unknown) {
@@ -61,6 +61,6 @@ export class RunLiveSessionInfoCommand
       return error.message;
     }
 
-    return "Unknown error while reading live darktable session.";
+    return "Unknown error while reading live darktable snapshot.";
   }
 }

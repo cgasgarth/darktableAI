@@ -2,12 +2,14 @@ import type {
   LiveDarktableActiveImage,
   LiveDarktableAvailableExposureState,
   LiveDarktableAvailableSessionState,
+  LiveDarktableAvailableSnapshotState,
   LiveDarktableCommandDiagnostics,
   LiveDarktableExposureChange,
   LiveDarktableExposureState,
   LiveDarktableSessionState,
   LiveDarktableUnavailableState
 } from "../../application/models/live-darktable";
+import { DarktableLiveBridgeSnapshotParser } from "./darktable-live-bridge-snapshot-parser";
 
 interface LiveBridgePayload {
   readonly bridgeVersion?: unknown;
@@ -16,9 +18,15 @@ interface LiveBridgePayload {
   readonly session?: unknown;
   readonly activeImage?: unknown;
   readonly exposure?: unknown;
+  readonly snapshot?: unknown;
 }
 
 export class DarktableLiveBridgeResponseParser {
+  public constructor(
+    private readonly snapshotParser: DarktableLiveBridgeSnapshotParser =
+      new DarktableLiveBridgeSnapshotParser()
+  ) {}
+
   public parseGetSession(
     stdout: string,
     diagnostics: LiveDarktableCommandDiagnostics
@@ -32,9 +40,26 @@ export class DarktableLiveBridgeResponseParser {
 
     return {
       ...common,
-      session: this.readSession(parsed.session),
       ...(parsed.activeImage === undefined ? {} : { activeImage: this.readActiveImage(parsed.activeImage) }),
       ...(parsed.exposure === undefined ? {} : { exposure: this.readSessionExposure(parsed.exposure) })
+    };
+  }
+
+  public parseGetSnapshot(
+    stdout: string,
+    diagnostics: LiveDarktableCommandDiagnostics
+  ): LiveDarktableAvailableSnapshotState | LiveDarktableUnavailableState {
+    const parsed = this.parsePayload(stdout);
+    const common = this.readCommonFields(parsed, diagnostics);
+
+    if (common.status === "unavailable") {
+      return common;
+    }
+
+    return {
+      ...common,
+      activeImage: this.readActiveImage(parsed.activeImage),
+      snapshot: this.snapshotParser.parse(parsed.snapshot)
     };
   }
 
@@ -51,7 +76,6 @@ export class DarktableLiveBridgeResponseParser {
 
     return {
       ...common,
-      session: this.readSession(parsed.session),
       ...(parsed.activeImage === undefined ? {} : { activeImage: this.readActiveImage(parsed.activeImage) }),
       exposure: this.readExposureChange(parsed.exposure)
     };
@@ -72,6 +96,7 @@ export class DarktableLiveBridgeResponseParser {
   ):
     | LiveDarktableAvailableSessionState
     | LiveDarktableAvailableExposureState
+    | LiveDarktableAvailableSnapshotState
     | LiveDarktableUnavailableState {
     const bridgeVersion = this.readBridgeVersion(payload.bridgeVersion);
     const status = this.readStatus(payload.status);
@@ -81,6 +106,7 @@ export class DarktableLiveBridgeResponseParser {
         bridgeVersion,
         status,
         diagnostics,
+        ...(payload.session === undefined ? {} : { session: this.readSession(payload.session) }),
         ...(payload.reason === undefined ? {} : { reason: this.readReason(payload.reason) })
       };
     }
@@ -146,10 +172,7 @@ export class DarktableLiveBridgeResponseParser {
 
   private readSessionExposure(value: unknown): LiveDarktableExposureState {
     const record = this.readRecord(value, "exposure");
-
-    return {
-      current: this.readNumber(record["current"], "exposure.current")
-    };
+    return { current: this.readNumber(record["current"], "exposure.current") };
   }
 
   private readExposureChange(value: unknown): LiveDarktableExposureChange {
@@ -193,8 +216,18 @@ export class DarktableLiveBridgeResponseParser {
   }
 
   private readString(value: unknown, label: string): string {
-    if (typeof value !== "string" || value.length === 0) {
+    const parsed = this.readStringValue(value, label);
+
+    if (parsed.length === 0) {
       throw new Error(`darktable-live-bridge field '${label}' must be a non-empty string.`);
+    }
+
+    return parsed;
+  }
+
+  private readStringValue(value: unknown, label: string): string {
+    if (typeof value !== "string") {
+      throw new Error(`darktable-live-bridge field '${label}' must be a string.`);
     }
 
     return value;
