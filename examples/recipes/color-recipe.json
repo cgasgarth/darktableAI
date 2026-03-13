@@ -1,0 +1,18 @@
+{
+  "recipeId": "color-recipe",
+  "sourceAssetPath": "../../../_DSC8809.ARW",
+  "adjustments": [
+    {
+      "kind": "contrast",
+      "contrast": 0.16
+    },
+    {
+      "kind": "saturation",
+      "saturation": 0.1
+    },
+    {
+      "kind": "vibrance",
+      "vibrance": 0.14
+    }
+  ]
+}

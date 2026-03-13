@@ -1,0 +1,53 @@
+{
+  "recipeId": "sample-develop-recipe",
+  "sourceAssetPath": "../../../_DSC8809.ARW",
+  "adjustments": [
+    {
+      "kind": "crop",
+      "left": 0.08,
+      "top": 0.1,
+      "width": 0.78,
+      "height": 0.66
+    },
+    {
+      "kind": "exposure",
+      "exposure": 0.25
+    },
+    {
+      "kind": "shadows",
+      "shadows": 0.18
+    },
+    {
+      "kind": "highlights",
+      "highlights": -0.12
+    },
+    {
+      "kind": "blackPoint",
+      "blackPoint": 0.04
+    },
+    {
+      "kind": "whitePoint",
+      "whitePoint": 0.96
+    },
+    {
+      "kind": "temperature",
+      "temperature": 5200
+    },
+    {
+      "kind": "tint",
+      "tint": 1.05
+    },
+    {
+      "kind": "contrast",
+      "contrast": 0.16
+    },
+    {
+      "kind": "saturation",
+      "saturation": 0.1
+    },
+    {
+      "kind": "vibrance",
+      "vibrance": 0.14
+    }
+  ]
+}

@@ -1,7 +1,27 @@
 export {
-  StrictEditPlanValidator,
-  type EditOperation,
-  type EditPlan,
-  type EditPlanValidator,
-  type PlanValidationIssue
-} from "./contracts/edit-plan";
+  ADJUSTMENT_CAPABILITY_REGISTRY,
+  listAdjustmentCapabilities,
+  type AdjustmentCapability,
+  type AdjustmentCapabilityRegistry,
+  type AdjustmentCapabilityStatus
+} from "./contracts/adjustment-capability";
+
+export {
+  StrictDevelopRecipeValidator,
+  type AdjustmentKind,
+  type AdjustmentOperation,
+  type BlacksAdjustment,
+  type ContrastAdjustment,
+  type CropAdjustment,
+  type DevelopRecipe,
+  type DevelopRecipeValidationIssue,
+  type DevelopRecipeValidator,
+  type HighlightsAdjustment,
+  type ExposureAdjustment,
+  type SaturationAdjustment,
+  type ShadowsAdjustment,
+  type TemperatureAdjustment,
+  type TintAdjustment,
+  type VibranceAdjustment,
+  type WhitesAdjustment
+} from "./contracts/develop-recipe";
