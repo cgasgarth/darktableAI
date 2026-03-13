@@ -141,7 +141,7 @@ describe("darktable fixture-backed regressions", (): void => {
       const result = await smokeTest.execute({ fixtureId: "sample-fixture" });
 
       expect(result.status).toBe("ok");
-      expect(result.fixture.sourceAssetPath).toBe(path.resolve(REPOSITORY_ROOT, "../_DSC8809.ARW"));
+      expect(result.fixture.sourceAssetPath).toBe(path.resolve(REPOSITORY_ROOT, "assets", "_DSC8809.ARW"));
       assertFileExistsWithContent(result.manifest.manifestPath);
       assertFileExistsWithContent(result.smokePreviewResult.outputImagePath);
 

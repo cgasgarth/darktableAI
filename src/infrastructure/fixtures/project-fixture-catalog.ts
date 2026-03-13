@@ -15,7 +15,7 @@ export class ProjectFixtureCatalog implements FixtureCatalog {
   private readonly fixturesById: ReadonlyMap<string, FixtureDefinition>;
 
   public constructor(projectRoot: string = path.resolve(import.meta.dir, "../../..")) {
-    const supportedFixturePath = path.resolve(projectRoot, "../_DSC8809.ARW");
+    const supportedFixturePath = path.resolve(projectRoot, "assets", "_DSC8809.ARW");
     const legacyFixturePath = path.resolve(projectRoot, "../DSC00075.ARW");
 
     this.fixturesById = new Map<string, FixtureDefinition>([
@@ -54,7 +54,7 @@ export class ProjectFixtureCatalog implements FixtureCatalog {
     } catch {
       throw new Error(
         `Expected fixture file not found at ${fixture.sourceAssetPath}. ` +
-          "Add the raw fixture one directory above the repository root."
+          "Add the raw fixture to the repository assets directory."
       );
     }
 

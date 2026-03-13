@@ -21,7 +21,7 @@ Example preview response:
   "manifestId": "preview-manifest-123",
   "manifestPath": "/repo/artifacts/manifests/preview-manifest-123.json",
   "outputImagePath": "/repo/artifacts/preview/preview-manifest-123-preview.jpg",
-  "sourceAssetPath": "/repo/_DSC8809.ARW",
+  "sourceAssetPath": "/repo/assets/_DSC8809.ARW",
   "compiledArtifactPath": "/repo/artifacts/preview/recipes/compile-123.xmp",
   "diagnostics": {
     "binaryPath": "/usr/bin/darktable-cli",
