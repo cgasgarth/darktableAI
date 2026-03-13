@@ -142,7 +142,7 @@ describe("ApplyLiveDarktableModuleInstanceAction", (): void => {
 class StubGateway {
   public readonly requests: Array<{
     readonly instanceKey: string;
-    readonly action: "enable" | "disable" | "create" | "duplicate" | "move-before" | "move-after";
+    readonly action: "enable" | "disable" | "create" | "duplicate" | "delete" | "move-before" | "move-after";
     readonly anchorInstanceKey?: string;
   }> = [];
   public getSnapshotCalls = 0;
@@ -169,7 +169,7 @@ class StubGateway {
 
   public applyModuleInstanceAction(request: {
     readonly instanceKey: string;
-    readonly action: "enable" | "disable" | "create" | "duplicate" | "move-before" | "move-after";
+    readonly action: "enable" | "disable" | "create" | "duplicate" | "delete" | "move-before" | "move-after";
     readonly anchorInstanceKey?: string;
   }): Promise<LiveDarktableModuleInstanceActionMutation> {
     this.requests.push(request);

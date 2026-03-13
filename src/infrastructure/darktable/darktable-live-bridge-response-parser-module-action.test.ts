@@ -141,6 +141,7 @@ describe("DarktableLiveBridgeResponseParser module actions", (): void => {
     "unsupported-module-action",
     "unsupported-module-state",
     "module-action-failed",
+    "module-delete-blocked-last-instance",
     "snapshot-unavailable"
   ] as const)("parses unavailable reason '%s'", (reason): void => {
     const parser = new DarktableLiveBridgeResponseParser();

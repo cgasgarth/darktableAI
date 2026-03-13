@@ -1,4 +1,5 @@
 import type {
+  LiveDarktableDeleteModuleInstanceAction,
   LiveDarktableForkModuleInstanceAction,
   LiveDarktableModuleInstanceActionMutation,
   LiveDarktableReorderModuleInstanceAction,
@@ -15,7 +16,10 @@ export interface SetLiveDarktableExposureRequest {
 export type ApplyLiveDarktableModuleInstanceActionRequest =
   | {
       readonly instanceKey: string;
-      readonly action: LiveDarktableToggleModuleInstanceAction | LiveDarktableForkModuleInstanceAction;
+      readonly action:
+        | LiveDarktableToggleModuleInstanceAction
+        | LiveDarktableForkModuleInstanceAction
+        | LiveDarktableDeleteModuleInstanceAction;
     }
   | {
       readonly instanceKey: string;

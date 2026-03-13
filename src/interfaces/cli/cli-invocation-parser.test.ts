@@ -85,7 +85,7 @@ describe("StrictCliInvocationParser", () => {
     });
   });
 
-  test("parses live-module-instance-action with snapshot instance keys", () => {
+  test("parses live-module-instance-action with snapshot-style instance keys", () => {
     const parser = new StrictCliInvocationParser();
 
     expect(
@@ -103,7 +103,7 @@ describe("StrictCliInvocationParser", () => {
     });
   });
 
-  test("parses live-module-instance-action create and duplicate actions", () => {
+  test("parses live-module-instance-action create, duplicate, and delete actions", () => {
     const parser = new StrictCliInvocationParser();
 
     expect(
@@ -132,6 +132,20 @@ describe("StrictCliInvocationParser", () => {
       kind: "live-module-instance-action",
       instanceKey: "exposure#0#0#",
       action: "duplicate"
+    });
+
+    expect(
+      parser.parse([
+        "live-module-instance-action",
+        "--instance-key",
+        "colorbalancergb#7#1#mask",
+        "--action",
+        "delete"
+      ])
+    ).toEqual({
+      kind: "live-module-instance-action",
+      instanceKey: "colorbalancergb#7#1#mask",
+      action: "delete"
     });
   });
 
@@ -186,7 +200,7 @@ describe("StrictCliInvocationParser", () => {
         "toggle"
       ])
     ).toThrow(
-      "Option '--action' must be 'enable', 'disable', 'create', 'duplicate', 'move-before', or 'move-after'."
+      "Option '--action' must be 'enable', 'disable', 'create', 'duplicate', 'delete', 'move-before', or 'move-after'."
     );
   });
 
@@ -215,7 +229,7 @@ describe("StrictCliInvocationParser", () => {
         "--action",
         "disable",
         "--anchor-instance-key",
-        "colorbalancergb#0#1#mask"
+        "colorbalancergb#7#1#mask"
       ])
     ).toThrow(
       "Option '--anchor-instance-key' is only supported with '--action move-before' or '--action move-after'."
