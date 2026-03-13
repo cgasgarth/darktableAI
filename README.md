@@ -13,6 +13,7 @@ What exists today:
 - truthful preview compilation for a limited set of adjustment kinds
 - an audited darktable module capability catalog that locks the editable backlog against the current `darktable/src/iop` inventory
 - a fork-backed live bridge with lightweight session readback, generic control metadata, deep snapshot readback, and successful live exposure mutation
+- a merged live module-instance action surface for `enable`, `disable`, `create`, `duplicate`, `delete`, `move-before`, and `move-after`
 
 What does not exist yet:
 - a broad darktable editing surface
@@ -29,6 +30,7 @@ What does not exist yet:
 - `live-session-info` returns lightweight live darkroom session state for bounded polling loops
 - `live-session-snapshot` returns active-image, control, module-stack, and history readback through the sibling fork helper
 - `live-set-exposure` performs a successful live mutation through the generic bridge control surface
+- `live-module-instance-action` applies live lifecycle actions against snapshot `instanceKey` values and returns an authoritative post-mutation snapshot
 - successful runs return JSON-only payloads with canonical artifact paths and execution diagnostics
 - smoke and preview runs use separate runtime directories, so they can run concurrently without clobbering each other
 
@@ -56,7 +58,7 @@ The contract also includes `whites` and `blacks`, but preview compilation does n
 | `smoke` against supported fixtures | Yes, with `darktable-cli` and `darktable` on `PATH` | No |
 | `render-preview` for `crop`, `exposure`, `contrast`, `saturation`, `vibrance`, `highlights`, `shadows`, `blackPoint`, `whitePoint` | Yes | No |
 | `render-preview` for `temperature` + `tint` | No | Yes - darktableAI resolves truthful temperature-module params through `darktable-wb-resolve`, expected at `../darktable/build/bin/darktable-wb-resolve` |
-| `live-session-info`, `live-session-snapshot`, `live-set-exposure` | No | Yes - these commands require `../darktable/build/bin/darktable-live-bridge` and a darktable GUI session |
+| `live-session-info`, `live-session-snapshot`, `live-set-exposure`, `live-module-instance-action` | No | Yes - these commands require `../darktable/build/bin/darktable-live-bridge` and a darktable GUI session |
 | retouch / spot removal / liquify style controls | No | These are marked `fork-required` in capabilities, but they are not implemented in the CLI yet |
 
 Notes:
@@ -97,6 +99,8 @@ bun run cli -- render-preview --recipe-file examples/recipes/sample-develop-reci
 bun run cli -- live-session-info
 bun run cli -- live-session-snapshot
 bun run cli -- live-set-exposure --exposure 1.25 --timeout-ms 1500 --poll-interval-ms 100
+bun run cli -- live-module-instance-action --instance-key exposure#0#0# --action duplicate
+bun run cli -- live-module-instance-action --instance-key colorbalancergb#7#1#mask --action move-after --anchor-instance-key exposure#0#0#
 ```
 
 Reusable validation commands:
@@ -110,6 +114,7 @@ bun run smoke:live-snapshot
 - `smoke:preview` is the 15-second darktable-cli fixture smoke check.
 - `smoke:live` is the 15-second tmux/dbus/xvfb live-session validation that expects live exposure mutation to complete and read back through the sibling `darktable` fork helper.
 - `smoke:live-snapshot` is the 15-second tmux/dbus/xvfb snapshot validation for `live-session-snapshot`; in this workspace it may still hit the known repo-built darktable startup instability documented in `docs/agent-feedback-loop.md`.
+- There is not yet a package-level smoke alias that exercises every lifecycle action; the merged lifecycle slices are currently pinned by command tests, parser/use-case tests, and the fork helper validator.
 
 Typical preview loop:
 1. Write or update a recipe JSON file.
@@ -162,9 +167,18 @@ For fast manual validation during live-control work:
 ```bash
 bun run smoke:preview
 bun run smoke:live
+bun run smoke:live-snapshot
 ```
 
-Both commands are wrapped in hard 15-second timeouts so they fail fast instead of hanging the session, while `smoke:live` still requires the exposure mutation to complete successfully inside that bound.
+For manual lifecycle validation against a healthy fork session:
+
+```bash
+bun run cli -- live-session-snapshot
+bun run cli -- live-module-instance-action --instance-key <key> --action <enable|disable|create|duplicate|delete>
+bun run cli -- live-module-instance-action --instance-key <key> --action <move-before|move-after> --anchor-instance-key <key>
+```
+
+The smoke commands are wrapped in hard 15-second timeouts so they fail fast instead of hanging the session. Use `live-session-snapshot` to discover `instanceKey` values before lifecycle actions and treat the returned `snapshot` as the post-mutation source of truth.
 
 ## Contributing
 

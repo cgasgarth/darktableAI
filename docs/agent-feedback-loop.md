@@ -18,6 +18,12 @@ For live GUI control work, also run these bounded checks:
 
 Both scripts use the sibling `darktable-live-bridge` helper, a tmux-hosted darktable session, and hard 15-second timeouts so validation fails fast instead of hanging.
 
+For module-instance lifecycle work, the operational loop is:
+1. Run `bun run cli -- live-session-snapshot`.
+2. Choose `snapshot.moduleStack[].instanceKey` values from the current live stack.
+3. Run `bun run cli -- live-module-instance-action ...`.
+4. Treat the returned `moduleAction` plus returned `snapshot` as the authoritative post-mutation state.
+
 Example preview response:
 
 ```json
@@ -69,13 +75,15 @@ The loop also supports concurrent `smoke` and `render-preview` runs because each
 - a live-control path through `live-session-info`, `live-session-snapshot`, and `live-set-exposure`, backed by the sibling `darktable-live-bridge` helper from the fork
 - a generic live bridge control surface under the fork helper, currently exposing `exposure.exposure` for list/get/set operations while keeping the older exposure-specific command for compatibility
 - truthful live snapshot readback for active image, module stack, control values, and history items
+- a merged `live-module-instance-action` surface for `enable`, `disable`, `create`, `duplicate`, `delete`, `move-before`, and `move-after`
+- machine-readable unavailable lifecycle outcomes such as `unknown-anchor-instance-key`, `module-delete-blocked-last-instance`, `module-reorder-no-op`, `module-reorder-blocked-by-fence`, and `module-reorder-blocked-by-rule`
 
 ## What still needs to be implemented
 
 - preview support for additional adjustment kinds beyond the current crop, tone, color, white-balance, and `rgblevels` endpoint surface
 - a truthful generic `whites` / `blacks` mapping if darktable later exposes one that is not just a proxy for `rgblevels`
 - generic live mutation/readback expansion beyond exposure so the audited module catalog can move from partial to full parity
-- module lifecycle, blend, mask, style, and history workflows on top of the current live bridge foundation
+- blend, mask, style, and history workflows on top of the current live bridge foundation
 - richer output inspection so the agent can score results instead of only checking process success
 
 ## Recommended operator checks
@@ -83,14 +91,18 @@ The loop also supports concurrent `smoke` and `render-preview` runs because each
 - Run `bun run cli -- help` to confirm the available commands.
 - Run `bun run cli -- capabilities` before recipe generation when the agent needs the live supported/planned adjustment set, then consult `docs/darktable-module-capability-catalog.md` for the audited per-module backlog.
 - Run `bun run smoke:preview` for the offline preview/worker path, `bun run smoke:live` for live mutation, and `bun run smoke:live-snapshot` for deep readback.
+- Use `bun run cli -- live-session-snapshot` to discover current `instanceKey` values before any lifecycle action.
+- Use `bun run cli -- live-module-instance-action --instance-key <key> --action <enable|disable|create|duplicate|delete>` for unary lifecycle operations.
+- Use `bun run cli -- live-module-instance-action --instance-key <key> --action <move-before|move-after> --anchor-instance-key <key>` for reorder operations.
 - Pair `temperature` with `tint` in the same recipe whenever white balance is requested.
 - Use a sibling build of `cgasgarth/darktable` when the recipe includes `temperature` + `tint`; stock packaged darktable is enough for the other currently supported preview adjustments.
 - Use `blackPoint` and `whitePoint` when you need truthful endpoint control; do not substitute unsupported generic `whites` or `blacks`.
 - Use `bun run cli -- render-preview --recipe-file <path>` only with currently supported adjustments unless explicit failure handling is part of the workflow.
+- There is not yet a package-level smoke alias that exercises every lifecycle action; use the command flow above plus returned snapshots and the fork helper validator for bounded lifecycle verification.
 
 ## Current Caveat
 
-The merged snapshot readback path is documented and tested at the contract level, but the repo-built sibling `../darktable/build/bin/darktable` still shows a local startup/import instability in this workspace.
+The merged snapshot readback and module-instance lifecycle paths are documented and tested at the contract level, but the repo-built sibling `../darktable/build/bin/darktable` still shows a local startup/import instability in this workspace.
 
 That can make `bun run smoke:live-snapshot` and the fork helper validator fail locally even though the code and PR slices are merged. Keep that caveat explicit in validation notes until the runtime issue is fixed.
 

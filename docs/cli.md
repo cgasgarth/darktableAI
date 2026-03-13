@@ -29,7 +29,7 @@ Show command usage.
 bun run cli -- help
 ```
 
-Current commands: `help`, `capabilities`, `smoke`, `render-preview`, `live-session-info`, `live-session-snapshot`, `live-set-exposure`.
+Current commands: `help`, `capabilities`, `smoke`, `render-preview`, `live-session-info`, `live-session-snapshot`, `live-set-exposure`, `live-module-instance-action`.
 
 Reusable package-level smoke aliases:
 
@@ -42,6 +42,7 @@ bun run smoke:live-snapshot
 - `smoke:preview` wraps the fixture-backed `smoke` CLI path with a hard 15-second timeout.
 - `smoke:live` runs the end-to-end live darktable validation flow under a hard 15-second timeout and expects the requested exposure mutation to complete.
 - `smoke:live-snapshot` runs the live snapshot readback validation under a hard 15-second timeout against the sibling fork build; local reruns can still expose the known repo-built darktable startup instability.
+- There is not yet a package-level smoke alias that exercises every lifecycle action; use `live-session-snapshot`, `live-module-instance-action`, and the fork helper validator for bounded lifecycle verification.
 
 ### `capabilities`
 
@@ -274,3 +275,69 @@ Success returns JSON-only stdout with:
 - `wait.{mode,targetRenderSequence,latestObservedRenderSequence,pollCount,completed,timedOut,...}` when wait mode is used
 - `session`, `activeImage`, `exposure`
 - `diagnostics` for every helper call made during the command
+
+### `live-module-instance-action`
+
+Applies a live module-instance lifecycle action against a snapshot-discovered `instanceKey`.
+
+Unary actions:
+
+```bash
+bun run cli -- live-module-instance-action --instance-key exposure#0#0# --action enable
+bun run cli -- live-module-instance-action --instance-key exposure#0#0# --action disable
+bun run cli -- live-module-instance-action --instance-key exposure#0#0# --action create
+bun run cli -- live-module-instance-action --instance-key exposure#0#0# --action duplicate
+bun run cli -- live-module-instance-action --instance-key colorbalancergb#7#1#mask --action delete
+```
+
+Reorder actions:
+
+```bash
+bun run cli -- live-module-instance-action --instance-key colorbalancergb#7#1#mask --action move-before --anchor-instance-key exposure#0#0#
+bun run cli -- live-module-instance-action --instance-key colorbalancergb#7#1#mask --action move-after --anchor-instance-key exposure#0#0#
+```
+
+Behavior:
+- `--instance-key` must come from `live-session-snapshot` `snapshot.moduleStack[].instanceKey`.
+- `--action` accepts `enable`, `disable`, `create`, `duplicate`, `delete`, `move-before`, and `move-after`.
+- `--anchor-instance-key` is required only for reorder actions and rejected for every other action.
+- lifecycle actions are darkroom-only and require an active image in the current GUI session.
+- the helper-returned `snapshot` is the authoritative post-mutation readback; the command does not perform a second snapshot fetch.
+- expected unavailable states stay machine-readable on stdout with `status: "unavailable"`; helper transport failures stay non-zero/stderr.
+
+Success returns JSON-only stdout with:
+- `requestId`
+- `bridgeVersion`
+- `status`
+- `session.{view,renderSequence,historyChangeSequence,imageLoadSequence}`
+- `activeImage.{imageId,directoryPath,fileName,sourceAssetPath}`
+- `snapshot.appliedHistoryEnd`
+- `snapshot.controls[]`, `snapshot.moduleStack[]`, and `snapshot.historyItems[]`
+- `moduleAction` describing the requested lifecycle mutation
+- `diagnostics[]` for every helper call made during the command
+
+`moduleAction` fields depend on the action:
+- toggle actions include `requestedEnabled`, `previousEnabled`, `currentEnabled`, and `changed`
+- create and duplicate actions include `resultInstanceKey`
+- delete actions include the deleted target descriptors and may include replacement identity fields when base-instance promotion happens
+- reorder actions include `anchorInstanceKey`, `previousIopOrder`, and `currentIopOrder`
+
+Current expected unavailable reasons include:
+- `unsupported-view`
+- `no-active-image`
+- `unknown-instance-key`
+- `unknown-anchor-instance-key`
+- `unsupported-module-action`
+- `unsupported-module-state`
+- `module-delete-blocked-last-instance`
+- `module-reorder-no-op`
+- `module-reorder-blocked-by-fence`
+- `module-reorder-blocked-by-rule`
+- `module-action-failed`
+- `snapshot-unavailable`
+
+Operational notes:
+- use `live-session-snapshot` immediately before lifecycle actions so `instanceKey` values come from the current visible stack
+- treat the returned `snapshot` as the source of truth for post-action order, enabled state, family membership, and base-instance promotion
+- `smoke:live` validates exposure mutation only and `smoke:live-snapshot` validates snapshot readback only; there is not yet a package-level smoke alias that runs every lifecycle action
+- local reruns of snapshot-driven lifecycle validation may still be blocked by the known repo-built sibling `darktable` startup/import crash documented in `docs/agent-feedback-loop.md`
