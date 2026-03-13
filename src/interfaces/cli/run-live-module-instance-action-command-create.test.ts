@@ -45,6 +45,7 @@ describe("RunLiveModuleInstanceActionCommand create", (): void => {
                   iopOrder: 12,
                   multiPriority: 1,
                   multiName: "1",
+                  blend: { supported: false, masksSupported: false },
                   params: {
                     encoding: "unsupported" as const
                   }
@@ -60,6 +61,7 @@ describe("RunLiveModuleInstanceActionCommand create", (): void => {
                   iopOrder: 12,
                   multiPriority: 1,
                   multiName: "1",
+                  blend: { supported: false, masksSupported: false },
                   params: {
                     encoding: "unsupported" as const
                   }
@@ -111,6 +113,7 @@ describe("RunLiveModuleInstanceActionCommand create", (): void => {
                   iopOrder: 12,
                   multiPriority: 1,
                   multiName: "1",
+                  blend: { supported: false, masksSupported: false },
                   params: {
                     encoding: "unsupported" as const
                   }
@@ -126,6 +129,7 @@ describe("RunLiveModuleInstanceActionCommand create", (): void => {
                   iopOrder: 12,
                   multiPriority: 1,
                   multiName: "1",
+                  blend: { supported: false, masksSupported: false },
                   params: {
                     encoding: "unsupported" as const
                   }
@@ -193,6 +197,7 @@ describe("RunLiveModuleInstanceActionCommand create", (): void => {
               iopOrder: 12,
               multiPriority: 1,
               multiName: "1",
+              blend: { supported: false, masksSupported: false },
               params: {
                 encoding: "unsupported"
               }
@@ -208,6 +213,7 @@ describe("RunLiveModuleInstanceActionCommand create", (): void => {
               iopOrder: 12,
               multiPriority: 1,
               multiName: "1",
+              blend: { supported: false, masksSupported: false },
               params: {
                 encoding: "unsupported"
               }

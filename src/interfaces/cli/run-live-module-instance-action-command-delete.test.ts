@@ -48,6 +48,7 @@ describe("RunLiveModuleInstanceActionCommand delete", (): void => {
                   iopOrder: 9,
                   multiPriority: 2,
                   multiName: "replacement",
+                  blend: { supported: false, masksSupported: false },
                   params: { encoding: "unsupported" as const }
                 }
               ],
@@ -101,6 +102,7 @@ describe("RunLiveModuleInstanceActionCommand delete", (): void => {
                   iopOrder: 9,
                   multiPriority: 2,
                   multiName: "replacement",
+                  blend: { supported: false, masksSupported: false },
                   params: { encoding: "unsupported" as const }
                 }
               ],
@@ -167,6 +169,7 @@ describe("RunLiveModuleInstanceActionCommand delete", (): void => {
               iopOrder: 9,
               multiPriority: 2,
               multiName: "replacement",
+              blend: { supported: false, masksSupported: false },
               params: { encoding: "unsupported" }
             }
           ],

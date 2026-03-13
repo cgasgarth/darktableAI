@@ -58,6 +58,7 @@ describe("DarktableLiveBridge reorder", (): void => {
                 iopOrder: 12,
                 multiPriority: 0,
                 multiName: "0",
+                blend: { supported: false, masksSupported: false },
                 params: { encoding: "unsupported" }
               },
               {
@@ -67,6 +68,7 @@ describe("DarktableLiveBridge reorder", (): void => {
                 iopOrder: 8,
                 multiPriority: 1,
                 multiName: "mask",
+                blend: { supported: false, masksSupported: false },
                 params: { encoding: "unsupported" }
               }
             ],
@@ -80,6 +82,7 @@ describe("DarktableLiveBridge reorder", (): void => {
                 iopOrder: 8,
                 multiPriority: 1,
                 multiName: "mask",
+                blend: { supported: false, masksSupported: false },
                 params: { encoding: "unsupported" }
               }
             ]

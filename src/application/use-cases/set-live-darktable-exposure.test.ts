@@ -221,6 +221,10 @@ class StubGateway {
     return Promise.resolve(this.state.mutation);
   }
 
+  public applyModuleInstanceBlend(): Promise<never> {
+    throw new Error("Unexpected applyModuleInstanceBlend call.");
+  }
+
   public applyModuleInstanceAction(): Promise<never> {
     throw new Error("Unexpected applyModuleInstanceAction call.");
   }

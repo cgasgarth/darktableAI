@@ -74,6 +74,10 @@ class StubGateway {
     throw new Error("Unexpected setExposure call.");
   }
 
+  public applyModuleInstanceBlend(): Promise<never> {
+    throw new Error("Unexpected applyModuleInstanceBlend call.");
+  }
+
   public applyModuleInstanceAction(request: {
     readonly instanceKey: string;
     readonly action: "delete";
@@ -118,6 +122,10 @@ function createModuleState(): {
   readonly iopOrder: 9;
   readonly multiPriority: 2;
   readonly multiName: "replacement";
+  readonly blend: {
+    readonly supported: false;
+    readonly masksSupported: false;
+  };
   readonly params: { readonly encoding: "unsupported" };
 } {
   return {
@@ -127,6 +135,7 @@ function createModuleState(): {
     iopOrder: 9,
     multiPriority: 2,
     multiName: "replacement",
+    blend: { supported: false, masksSupported: false },
     params: { encoding: "unsupported" as const }
   };
 }

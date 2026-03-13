@@ -42,6 +42,10 @@ export class StrictCliInvocationParser implements CliInvocationParser {
       return this.parseLiveSetExposure(rest);
     }
 
+    if (command === "live-set-module-blend") {
+      return this.parseLiveSetModuleBlend(rest);
+    }
+
     if (command === "live-module-instance-action") {
       return this.parseLiveModuleInstanceAction(rest);
     }
@@ -120,6 +124,17 @@ export class StrictCliInvocationParser implements CliInvocationParser {
         timeoutMilliseconds,
         pollIntervalMilliseconds
       }
+    };
+  }
+
+  private parseLiveSetModuleBlend(argv: ReadonlyArray<string>): CliInvocation {
+    const instanceKey = this.readRequiredOption(argv, "--instance-key");
+    const opacity = this.readNumberOption(argv, "--opacity");
+
+    return {
+      kind: "live-set-module-blend",
+      instanceKey,
+      opacity
     };
   }
 

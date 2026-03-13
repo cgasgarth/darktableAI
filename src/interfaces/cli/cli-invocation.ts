@@ -6,6 +6,7 @@ export type CliInvocation =
   | LiveSessionInfoCliInvocation
   | LiveSessionSnapshotCliInvocation
   | LiveSetExposureCliInvocation
+  | LiveSetModuleBlendCliInvocation
   | LiveModuleInstanceActionCliInvocation;
 
 export interface HelpCliInvocation {
@@ -64,3 +65,9 @@ export type LiveSetExposureCliInvocation =
         readonly pollIntervalMilliseconds: number;
       };
     };
+
+export interface LiveSetModuleBlendCliInvocation {
+  readonly kind: "live-set-module-blend";
+  readonly instanceKey: string;
+  readonly opacity: number;
+}

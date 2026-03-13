@@ -80,6 +80,10 @@ class StubGateway {
     throw new Error("Unexpected setExposure call.");
   }
 
+  public applyModuleInstanceBlend(): Promise<never> {
+    throw new Error("Unexpected applyModuleInstanceBlend call.");
+  }
+
   public applyModuleInstanceAction(request: {
     readonly instanceKey: string;
     readonly action: "move-before";

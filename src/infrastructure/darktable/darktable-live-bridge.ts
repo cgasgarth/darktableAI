@@ -3,6 +3,7 @@ import path from "node:path";
 import type {
   LiveDarktableCommandDiagnostics,
   LiveDarktableExposureMutation,
+  LiveDarktableModuleBlendMutation,
   LiveDarktableModuleInstanceActionMutation,
   LiveDarktableSnapshotReadback,
   LiveDarktableSessionSnapshot
@@ -10,7 +11,8 @@ import type {
 import type {
   ApplyLiveDarktableModuleInstanceActionRequest,
   LiveDarktableSessionGateway,
-  SetLiveDarktableExposureRequest
+  SetLiveDarktableExposureRequest,
+  SetLiveDarktableModuleBlendRequest
 } from "../../application/ports/live-darktable-session-gateway";
 import {
   BunDarktableCliProcessRunner,
@@ -46,6 +48,18 @@ export class DarktableLiveBridge implements LiveDarktableSessionGateway {
   ): Promise<LiveDarktableExposureMutation> {
     const execution = await this.runBridgeCommand(["set-exposure", String(request.exposure)]);
     return this.parser.parseSetExposure(execution.stdout, execution.diagnostics);
+  }
+
+  public async applyModuleInstanceBlend(
+    request: SetLiveDarktableModuleBlendRequest
+  ): Promise<LiveDarktableModuleBlendMutation> {
+    const execution = await this.runBridgeCommand([
+      "apply-module-instance-blend",
+      request.instanceKey,
+      JSON.stringify({ opacity: request.opacity })
+    ]);
+
+    return this.parser.parseApplyModuleInstanceBlend(execution.stdout, execution.diagnostics);
   }
 
   public async applyModuleInstanceAction(

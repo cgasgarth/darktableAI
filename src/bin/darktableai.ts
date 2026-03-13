@@ -87,6 +87,15 @@ async function run(): Promise<never> {
 
       return handleCommandResult(result);
     }
+    case "live-set-module-blend": {
+      const result = await services.runLiveSetModuleBlendCommand.execute({
+        requestId: crypto.randomUUID(),
+        instanceKey: invocation.instanceKey,
+        opacity: invocation.opacity
+      });
+
+      return handleCommandResult(result);
+    }
     case "live-module-instance-action": {
       const result = await services.runLiveModuleInstanceActionCommand.execute(
         invocation.action === "move-before" || invocation.action === "move-after"
@@ -138,6 +147,7 @@ function getHelpText(): string {
     "  bun run cli -- live-session-snapshot",
     "  bun run cli -- live-set-exposure --exposure <ev>",
     "  bun run cli -- live-set-exposure --exposure <ev> --timeout-ms <ms> --poll-interval-ms <ms>",
+    "  bun run cli -- live-set-module-blend --instance-key <key> --opacity <percent>",
     "  bun run cli -- live-module-instance-action --instance-key <key> --action <enable|disable|create|duplicate|delete>",
     "  bun run cli -- live-module-instance-action --instance-key <key> --action <move-before|move-after> --anchor-instance-key <key>",
     "",
@@ -148,10 +158,11 @@ function getHelpText(): string {
     "  bun run cli -- live-session-info",
     "  bun run cli -- live-session-snapshot",
     "  bun run cli -- live-set-exposure --exposure 0.5 --timeout-ms 1500 --poll-interval-ms 100",
+    "  bun run cli -- live-set-module-blend --instance-key exposure#0#0# --opacity 75",
     "  bun run cli -- live-module-instance-action --instance-key exposure#0#0# --action disable",
     "  bun run cli -- live-module-instance-action --instance-key exposure#0#0# --action duplicate",
-    "  bun run cli -- live-module-instance-action --instance-key colorbalancergb#7#1#mask --action delete",
-    "  bun run cli -- live-module-instance-action --instance-key colorbalancergb#7#1#mask --action move-after --anchor-instance-key exposure#0#0#",
+    "  bun run cli -- live-module-instance-action --instance-key colorbalancergb#7#1# --action delete",
+    "  bun run cli -- live-module-instance-action --instance-key colorbalancergb#7#1# --action move-after --anchor-instance-key exposure#0#0#",
     "",
     "Success responses print JSON on stdout. Failures print human-readable errors on stderr."
   ].join("\n");

@@ -173,6 +173,10 @@ function createSnapshot(): {
       readonly iopOrder: 12;
       readonly multiPriority: 0;
       readonly multiName: "0";
+      readonly blend: {
+        readonly supported: false;
+        readonly masksSupported: false;
+      };
       readonly params: {
         readonly encoding: "unsupported";
       };
@@ -184,6 +188,10 @@ function createSnapshot(): {
       readonly iopOrder: 8;
       readonly multiPriority: 1;
       readonly multiName: "mask";
+      readonly blend: {
+        readonly supported: false;
+        readonly masksSupported: false;
+      };
       readonly params: {
         readonly encoding: "unsupported";
       };
@@ -199,6 +207,10 @@ function createSnapshot(): {
       readonly iopOrder: 8;
       readonly multiPriority: 1;
       readonly multiName: "mask";
+      readonly blend: {
+        readonly supported: false;
+        readonly masksSupported: false;
+      };
       readonly params: {
         readonly encoding: "unsupported";
       };
@@ -233,6 +245,7 @@ function createSnapshot(): {
         iopOrder: 12,
         multiPriority: 0,
         multiName: "0",
+        blend: { supported: false, masksSupported: false },
         params: {
           encoding: "unsupported"
         }
@@ -244,6 +257,7 @@ function createSnapshot(): {
         iopOrder: 8,
         multiPriority: 1,
         multiName: "mask",
+        blend: { supported: false, masksSupported: false },
         params: {
           encoding: "unsupported"
         }
@@ -259,6 +273,7 @@ function createSnapshot(): {
         iopOrder: 8,
         multiPriority: 1,
         multiName: "mask",
+        blend: { supported: false, masksSupported: false },
         params: {
           encoding: "unsupported"
         }

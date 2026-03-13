@@ -5,9 +5,11 @@ import { GetLiveDarktableSnapshot } from "../application/use-cases/get-live-dark
 import { GetLiveDarktableSession } from "../application/use-cases/get-live-darktable-session";
 import { RunDarktableSmokeTest } from "../application/use-cases/run-darktable-smoke-test";
 import { SetLiveDarktableExposure } from "../application/use-cases/set-live-darktable-exposure";
+import { SetLiveDarktableModuleBlend } from "../application/use-cases/set-live-darktable-module-blend";
 import { RunDarktableSmokeCommand } from "../interfaces/cli/run-darktable-smoke-command";
 import { RunAdjustmentCapabilitiesCommand } from "../interfaces/cli/run-adjustment-capabilities-command";
 import { RunLiveModuleInstanceActionCommand } from "../interfaces/cli/run-live-module-instance-action-command";
+import { RunLiveSetModuleBlendCommand } from "../interfaces/cli/run-live-set-module-blend-command";
 import { RunLiveSessionInfoCommand } from "../interfaces/cli/run-live-session-info-command";
 import { RunLiveSessionSnapshotCommand } from "../interfaces/cli/run-live-session-snapshot-command";
 import { RunLiveSetExposureCommand } from "../interfaces/cli/run-live-set-exposure-command";
@@ -33,6 +35,7 @@ interface ApplicationServiceContainer {
   readonly runLiveSessionInfoCommand: RunLiveSessionInfoCommand;
   readonly runLiveSessionSnapshotCommand: RunLiveSessionSnapshotCommand;
   readonly runLiveSetExposureCommand: RunLiveSetExposureCommand;
+  readonly runLiveSetModuleBlendCommand: RunLiveSetModuleBlendCommand;
   readonly runLiveModuleInstanceActionCommand: RunLiveModuleInstanceActionCommand;
 }
 
@@ -92,6 +95,7 @@ export const createApplicationServices = (): ApplicationServiceContainer => {
     systemClock,
     sleeper
   );
+  const setLiveDarktableModuleBlend = new SetLiveDarktableModuleBlend(liveBridge);
 
   const createPreviewRenderCommand = new RunPreviewRenderCommand(
     createPreviewRender,
@@ -105,6 +109,7 @@ export const createApplicationServices = (): ApplicationServiceContainer => {
   const runLiveSessionInfoCommand = new RunLiveSessionInfoCommand(getLiveDarktableSession);
   const runLiveSessionSnapshotCommand = new RunLiveSessionSnapshotCommand(getLiveDarktableSnapshot);
   const runLiveSetExposureCommand = new RunLiveSetExposureCommand(setLiveDarktableExposure);
+  const runLiveSetModuleBlendCommand = new RunLiveSetModuleBlendCommand(setLiveDarktableModuleBlend);
   const runLiveModuleInstanceActionCommand = new RunLiveModuleInstanceActionCommand(
     applyLiveDarktableModuleInstanceAction
   );
@@ -116,6 +121,7 @@ export const createApplicationServices = (): ApplicationServiceContainer => {
     runLiveSessionInfoCommand,
     runLiveSessionSnapshotCommand,
     runLiveSetExposureCommand,
+    runLiveSetModuleBlendCommand,
     runLiveModuleInstanceActionCommand
   };
 };

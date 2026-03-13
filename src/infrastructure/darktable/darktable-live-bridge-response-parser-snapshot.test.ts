@@ -58,6 +58,7 @@ describe("DarktableLiveBridgeResponseParser snapshot payloads", (): void => {
                 iopOrder: 12,
                 multiPriority: 0,
                 multiName: "0",
+                blend: { supported: false, masksSupported: false },
                 params: {
                   encoding: "introspection-v1",
                   fields: [
@@ -80,6 +81,7 @@ describe("DarktableLiveBridgeResponseParser snapshot payloads", (): void => {
                 iopOrder: 12,
                 multiPriority: 0,
                 multiName: "0",
+                blend: { supported: false, masksSupported: false },
                 params: {
                   encoding: "unsupported"
                 }
@@ -133,6 +135,7 @@ describe("DarktableLiveBridgeResponseParser snapshot payloads", (): void => {
             iopOrder: 12,
             multiPriority: 0,
             multiName: "0",
+            blend: { supported: false, masksSupported: false },
             params: {
               encoding: "introspection-v1",
               fields: [
@@ -155,6 +158,7 @@ describe("DarktableLiveBridgeResponseParser snapshot payloads", (): void => {
             iopOrder: 12,
             multiPriority: 0,
             multiName: "0",
+            blend: { supported: false, masksSupported: false },
             params: {
               encoding: "unsupported"
             }

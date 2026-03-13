@@ -8,9 +8,11 @@ import type {
   LiveDarktableCommandDiagnostics,
   LiveDarktableExposureChange,
   LiveDarktableExposureState,
+  LiveDarktableModuleBlendResult,
   LiveDarktableModuleInstanceActionResult,
   LiveDarktableSnapshotState,
   LiveDarktableSessionState,
+  LiveDarktableUnavailableModuleBlendResult,
   LiveDarktableUnavailableModuleInstanceActionResult,
   LiveDarktableUnavailableReason,
   LiveDarktableSetExposureWaitOutcome
@@ -114,4 +116,13 @@ export interface LiveModuleInstanceActionResponse extends LiveResponseCommon {
   readonly moduleAction?:
     | LiveDarktableModuleInstanceActionResult
     | LiveDarktableUnavailableModuleInstanceActionResult;
+}
+
+export interface LiveModuleBlendResponse extends LiveResponseCommon {
+  readonly diagnostics: ReadonlyArray<LiveDarktableCommandDiagnostics>;
+  readonly reason?: LiveDarktableUnavailableReason;
+  readonly session?: LiveDarktableSessionState;
+  readonly activeImage?: LiveDarktableActiveImage;
+  readonly snapshot?: LiveDarktableSnapshotState;
+  readonly moduleBlend?: LiveDarktableModuleBlendResult | LiveDarktableUnavailableModuleBlendResult;
 }

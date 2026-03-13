@@ -7,8 +7,13 @@ import type {
   LiveDarktableSnapshotParams,
   LiveDarktableSnapshotState
 } from "../../application/models/live-darktable";
+import { DarktableLiveBridgeBlendParser } from "./darktable-live-bridge-blend-parser";
 
 export class DarktableLiveBridgeSnapshotParser {
+  public constructor(
+    private readonly blendParser: DarktableLiveBridgeBlendParser = new DarktableLiveBridgeBlendParser()
+  ) {}
+
   public parse(value: unknown): LiveDarktableSnapshotState {
     const record = this.readRecord(value, "snapshot");
     const appliedHistoryEnd = this.readInteger(record["appliedHistoryEnd"], "snapshot.appliedHistoryEnd");
@@ -135,6 +140,7 @@ export class DarktableLiveBridgeSnapshotParser {
       iopOrder: this.readInteger(record["iopOrder"], `${label}.iopOrder`),
       multiPriority: this.readInteger(record["multiPriority"], `${label}.multiPriority`),
       multiName: this.readStringValue(record["multiName"], `${label}.multiName`),
+      blend: this.blendParser.parseSnapshotBlend(record["blend"], `${label}.blend`),
       params: this.readParams(record["params"], `${label}.params`)
     };
   }

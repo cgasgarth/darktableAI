@@ -41,6 +41,7 @@ describe("DarktableLiveBridgeResponseParser snapshot errors", (): void => {
                 iopOrder: 12,
                 multiPriority: 0,
                 multiName: "0",
+                blend: { supported: false, masksSupported: false },
                 params: {
                   encoding: "unsupported"
                 }
@@ -101,6 +102,7 @@ describe("DarktableLiveBridgeResponseParser snapshot errors", (): void => {
                 iopOrder: 12,
                 multiPriority: 0,
                 multiName: "0",
+                blend: { supported: false, masksSupported: false },
                 params: {
                   encoding: "unsupported"
                 }
@@ -178,6 +180,7 @@ describe("DarktableLiveBridgeResponseParser snapshot errors", (): void => {
                 iopOrder: 12,
                 multiPriority: 0,
                 multiName: "0",
+                blend: { supported: false, masksSupported: false },
                 params: {
                   encoding: "unsupported"
                 }
@@ -239,6 +242,7 @@ describe("DarktableLiveBridgeResponseParser snapshot errors", (): void => {
                 iopOrder: 12,
                 multiPriority: 0,
                 multiName: "0",
+                blend: { supported: false, masksSupported: false },
                 params: {
                   encoding: "mystery"
                 }
@@ -302,6 +306,7 @@ describe("DarktableLiveBridgeResponseParser snapshot errors", (): void => {
                 iopOrder: 12,
                 multiPriority: 0,
                 multiName: "0",
+                blend: { supported: false, masksSupported: false },
                 params: {
                   encoding: "unsupported"
                 }
@@ -317,6 +322,7 @@ describe("DarktableLiveBridgeResponseParser snapshot errors", (): void => {
                 iopOrder: 12,
                 multiPriority: 0,
                 multiName: "0",
+                blend: { supported: false, masksSupported: false },
                 params: {
                   encoding: "unsupported"
                 }

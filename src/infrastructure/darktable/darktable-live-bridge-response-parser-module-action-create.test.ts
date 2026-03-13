@@ -155,6 +155,10 @@ function createSnapshotItemWithInstanceKey(instanceKey: string, enabled: boolean
   readonly iopOrder: 12;
   readonly multiPriority: 0;
   readonly multiName: "0";
+  readonly blend: {
+    readonly supported: false;
+    readonly masksSupported: false;
+  };
   readonly params: {
     readonly encoding: "unsupported";
   };
@@ -166,6 +170,7 @@ function createSnapshotItemWithInstanceKey(instanceKey: string, enabled: boolean
     iopOrder: 12,
     multiPriority: 0,
     multiName: "0",
+    blend: { supported: false, masksSupported: false },
     params: {
       encoding: "unsupported"
     }

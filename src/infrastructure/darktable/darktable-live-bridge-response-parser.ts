@@ -1,6 +1,7 @@
 import type {
   LiveDarktableActiveImage,
   LiveDarktableAvailableExposureState,
+  LiveDarktableAvailableModuleBlendState,
   LiveDarktableAvailableModuleInstanceActionState,
   LiveDarktableAvailableSessionState,
   LiveDarktableAvailableSnapshotState,
@@ -11,6 +12,7 @@ import type {
   LiveDarktableUnavailableReason,
   LiveDarktableUnavailableState
 } from "../../application/models/live-darktable";
+import { DarktableLiveBridgeBlendParser } from "./darktable-live-bridge-blend-parser";
 import { DarktableLiveBridgeModuleActionParser } from "./darktable-live-bridge-module-action-parser";
 import { DarktableLiveBridgeSnapshotParser } from "./darktable-live-bridge-snapshot-parser";
 
@@ -23,12 +25,14 @@ interface LiveBridgePayload {
   readonly exposure?: unknown;
   readonly snapshot?: unknown;
   readonly moduleAction?: unknown;
+  readonly moduleBlend?: unknown;
 }
 
 export class DarktableLiveBridgeResponseParser {
   public constructor(
     private readonly snapshotParser: DarktableLiveBridgeSnapshotParser = new DarktableLiveBridgeSnapshotParser(),
-    private readonly moduleActionParser: DarktableLiveBridgeModuleActionParser = new DarktableLiveBridgeModuleActionParser()
+    private readonly moduleActionParser: DarktableLiveBridgeModuleActionParser = new DarktableLiveBridgeModuleActionParser(),
+    private readonly blendParser: DarktableLiveBridgeBlendParser = new DarktableLiveBridgeBlendParser()
   ) {}
 
   public parseGetSession(
@@ -92,6 +96,37 @@ export class DarktableLiveBridgeResponseParser {
     };
   }
 
+  public parseApplyModuleInstanceBlend(
+    stdout: string,
+    diagnostics: LiveDarktableCommandDiagnostics
+  ): LiveDarktableAvailableModuleBlendState | LiveDarktableUnavailableState {
+    const parsed = this.parsePayload(stdout);
+    const bridgeVersion = this.readBridgeVersion(parsed.bridgeVersion);
+    const status = this.readStatus(parsed.status);
+
+    if (status === "unavailable") {
+      return {
+        bridgeVersion,
+        status,
+        diagnostics,
+        ...(parsed.session === undefined ? {} : { session: this.readSession(parsed.session) }),
+        ...(parsed.activeImage === undefined ? {} : { activeImage: this.readActiveImage(parsed.activeImage) }),
+        moduleBlend: this.blendParser.parseUnavailable(parsed.moduleBlend),
+        ...(parsed.reason === undefined ? {} : { reason: this.readBlendReason(parsed.reason) })
+      };
+    }
+
+    return {
+      bridgeVersion,
+      status,
+      diagnostics,
+      session: this.readSession(parsed.session),
+      activeImage: this.readActiveImage(parsed.activeImage),
+      moduleBlend: this.blendParser.parseMutation(parsed.moduleBlend),
+      snapshot: this.snapshotParser.parse(parsed.snapshot)
+    };
+  }
+
   private parsePayload(stdout: string): LiveBridgePayload {
     try {
       return JSON.parse(stdout) as LiveBridgePayload;
@@ -107,6 +142,7 @@ export class DarktableLiveBridgeResponseParser {
   ):
     | LiveDarktableAvailableSessionState
     | LiveDarktableAvailableExposureState
+    | LiveDarktableAvailableModuleBlendState
     | LiveDarktableAvailableSnapshotState
     | LiveDarktableAvailableModuleInstanceActionState
     | LiveDarktableUnavailableState {
@@ -123,6 +159,9 @@ export class DarktableLiveBridgeResponseParser {
         ...(payload.moduleAction === undefined
           ? {}
           : { moduleAction: this.moduleActionParser.parseUnavailable(payload.moduleAction) }),
+        ...(payload.moduleBlend === undefined
+          ? {}
+          : { moduleBlend: this.blendParser.parseUnavailable(payload.moduleBlend) }),
         ...(payload.reason === undefined ? {} : { reason: this.readReason(payload.reason) })
       };
     }
@@ -153,9 +192,11 @@ export class DarktableLiveBridgeResponseParser {
       value !== "no-active-image" &&
       value !== "unknown-instance-key" &&
       value !== "unknown-anchor-instance-key" &&
+      value !== "unsupported-module-blend" &&
       value !== "unsupported-module-action" &&
       value !== "unsupported-module-state" &&
       value !== "module-action-failed" &&
+      value !== "module-blend-failed" &&
       value !== "module-delete-blocked-last-instance" &&
       value !== "module-reorder-blocked-by-fence" &&
       value !== "module-reorder-blocked-by-rule" &&
@@ -163,9 +204,26 @@ export class DarktableLiveBridgeResponseParser {
       value !== "snapshot-unavailable"
     ) {
       throw new Error(
-        "darktable-live-bridge field 'reason' must be 'unsupported-view', 'no-active-image', 'unknown-instance-key', 'unknown-anchor-instance-key', 'unsupported-module-action', 'unsupported-module-state', 'module-action-failed', 'module-delete-blocked-last-instance', 'module-reorder-blocked-by-fence', 'module-reorder-blocked-by-rule', 'module-reorder-no-op', or 'snapshot-unavailable'."
+        "darktable-live-bridge field 'reason' must be 'unsupported-view', 'no-active-image', 'unknown-instance-key', 'unknown-anchor-instance-key', 'unsupported-module-blend', 'unsupported-module-action', 'unsupported-module-state', 'module-action-failed', 'module-blend-failed', 'module-delete-blocked-last-instance', 'module-reorder-blocked-by-fence', 'module-reorder-blocked-by-rule', 'module-reorder-no-op', or 'snapshot-unavailable'."
       );
     }
+    return value;
+  }
+
+  private readBlendReason(value: unknown): LiveDarktableUnavailableReason {
+    if (
+      value !== "unsupported-view" &&
+      value !== "no-active-image" &&
+      value !== "unknown-instance-key" &&
+      value !== "unsupported-module-blend" &&
+      value !== "module-blend-failed" &&
+      value !== "snapshot-unavailable"
+    ) {
+      throw new Error(
+        "darktable-live-bridge field 'reason' must be 'unsupported-view', 'no-active-image', 'unknown-instance-key', 'unsupported-module-blend', 'module-blend-failed', or 'snapshot-unavailable' for module blend responses."
+      );
+    }
+
     return value;
   }
 

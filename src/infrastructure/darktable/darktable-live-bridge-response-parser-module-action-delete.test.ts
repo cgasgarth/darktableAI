@@ -64,6 +64,7 @@ describe("DarktableLiveBridgeResponseParser delete module actions", (): void => 
               iopOrder: 12,
               multiPriority: 0,
               multiName: "0",
+              blend: { supported: false, masksSupported: false },
               params: { encoding: "unsupported" }
             },
             {
@@ -73,6 +74,7 @@ describe("DarktableLiveBridgeResponseParser delete module actions", (): void => 
               iopOrder: 9,
               multiPriority: 2,
               multiName: "replacement",
+              blend: { supported: false, masksSupported: false },
               params: { encoding: "unsupported" }
             }
           ],
@@ -86,6 +88,7 @@ describe("DarktableLiveBridgeResponseParser delete module actions", (): void => 
               iopOrder: 9,
               multiPriority: 2,
               multiName: "replacement",
+              blend: { supported: false, masksSupported: false },
               params: { encoding: "unsupported" }
             }
           ]
@@ -146,6 +149,7 @@ describe("DarktableLiveBridgeResponseParser delete module actions", (): void => 
             iopOrder: 12,
             multiPriority: 0,
             multiName: "0",
+            blend: { supported: false, masksSupported: false },
             params: { encoding: "unsupported" }
           },
           {
@@ -155,6 +159,7 @@ describe("DarktableLiveBridgeResponseParser delete module actions", (): void => 
             iopOrder: 9,
             multiPriority: 2,
             multiName: "replacement",
+            blend: { supported: false, masksSupported: false },
             params: { encoding: "unsupported" }
           }
         ],
@@ -168,6 +173,7 @@ describe("DarktableLiveBridgeResponseParser delete module actions", (): void => 
             iopOrder: 9,
             multiPriority: 2,
             multiName: "replacement",
+            blend: { supported: false, masksSupported: false },
             params: { encoding: "unsupported" }
           }
         ]
