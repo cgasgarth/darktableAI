@@ -9,11 +9,18 @@ interface ApplyLiveDarktableModuleInstanceActionPort {
   ): Promise<LiveDarktableApplyModuleInstanceActionResult>;
 }
 
-export interface RunLiveModuleInstanceActionCommandInput {
-  readonly requestId: string;
-  readonly instanceKey: string;
-  readonly action: "enable" | "disable" | "create" | "duplicate";
-}
+export type RunLiveModuleInstanceActionCommandInput =
+  | {
+      readonly requestId: string;
+      readonly instanceKey: string;
+      readonly action: "enable" | "disable" | "create" | "duplicate";
+    }
+  | {
+      readonly requestId: string;
+      readonly instanceKey: string;
+      readonly action: "move-before" | "move-after";
+      readonly anchorInstanceKey: string;
+    };
 
 export class RunLiveModuleInstanceActionCommand
   implements CliCommand<RunLiveModuleInstanceActionCommandInput, LiveModuleInstanceActionResponse>
@@ -26,10 +33,18 @@ export class RunLiveModuleInstanceActionCommand
     input: RunLiveModuleInstanceActionCommandInput
   ): Promise<CliCommandResult<LiveModuleInstanceActionResponse>> {
     try {
-      const response = await this.applyLiveDarktableModuleInstanceAction.execute({
-        instanceKey: input.instanceKey,
-        action: input.action
-      });
+      const response = await this.applyLiveDarktableModuleInstanceAction.execute(
+        input.action === "move-before" || input.action === "move-after"
+          ? {
+              instanceKey: input.instanceKey,
+              action: input.action,
+              anchorInstanceKey: input.anchorInstanceKey
+            }
+          : {
+              instanceKey: input.instanceKey,
+              action: input.action
+            }
+      );
 
       if (response.latestSnapshot.status === "unavailable") {
         return {

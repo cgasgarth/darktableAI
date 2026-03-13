@@ -88,11 +88,20 @@ async function run(): Promise<never> {
       return handleCommandResult(result);
     }
     case "live-module-instance-action": {
-      const result = await services.runLiveModuleInstanceActionCommand.execute({
-        requestId: crypto.randomUUID(),
-        instanceKey: invocation.instanceKey,
-        action: invocation.action
-      });
+      const result = await services.runLiveModuleInstanceActionCommand.execute(
+        invocation.action === "move-before" || invocation.action === "move-after"
+          ? {
+              requestId: crypto.randomUUID(),
+              instanceKey: invocation.instanceKey,
+              action: invocation.action,
+              anchorInstanceKey: invocation.anchorInstanceKey
+            }
+          : {
+              requestId: crypto.randomUUID(),
+              instanceKey: invocation.instanceKey,
+              action: invocation.action
+            }
+      );
 
       return handleCommandResult(result);
     }
@@ -130,6 +139,7 @@ function getHelpText(): string {
     "  bun run cli -- live-set-exposure --exposure <ev>",
     "  bun run cli -- live-set-exposure --exposure <ev> --timeout-ms <ms> --poll-interval-ms <ms>",
     "  bun run cli -- live-module-instance-action --instance-key <key> --action <enable|disable|create|duplicate>",
+    "  bun run cli -- live-module-instance-action --instance-key <key> --action <move-before|move-after> --anchor-instance-key <key>",
     "",
     "Examples:",
     "  bun run cli -- capabilities",
@@ -140,6 +150,7 @@ function getHelpText(): string {
     "  bun run cli -- live-set-exposure --exposure 0.5 --timeout-ms 1500 --poll-interval-ms 100",
     "  bun run cli -- live-module-instance-action --instance-key exposure#0#0# --action disable",
     "  bun run cli -- live-module-instance-action --instance-key exposure#0#0# --action duplicate",
+    "  bun run cli -- live-module-instance-action --instance-key colorbalancergb#0#1#mask --action move-after --anchor-instance-key exposure#0#0#",
     "",
     "Success responses print JSON on stdout. Failures print human-readable errors on stderr."
   ].join("\n");

@@ -126,14 +126,31 @@ export class StrictCliInvocationParser implements CliInvocationParser {
   private parseLiveModuleInstanceAction(argv: ReadonlyArray<string>): CliInvocation {
     const instanceKey = this.readRequiredOption(argv, "--instance-key");
     const action = this.readRequiredOption(argv, "--action");
+    const anchorInstanceKey = this.readOptionalOption(argv, "--anchor-instance-key");
 
-    if (
-      action !== "enable" &&
-      action !== "disable" &&
-      action !== "create" &&
-      action !== "duplicate"
-    ) {
-      throw new Error("Option '--action' must be 'enable', 'disable', 'create', or 'duplicate'.");
+    if (action === "move-before" || action === "move-after") {
+      if (anchorInstanceKey === undefined) {
+        throw new Error("Missing required option '--anchor-instance-key'.");
+      }
+
+      return {
+        kind: "live-module-instance-action",
+        instanceKey,
+        action,
+        anchorInstanceKey
+      };
+    }
+
+    if (action !== "enable" && action !== "disable" && action !== "create" && action !== "duplicate") {
+      throw new Error(
+        "Option '--action' must be 'enable', 'disable', 'create', 'duplicate', 'move-before', or 'move-after'."
+      );
+    }
+
+    if (anchorInstanceKey !== undefined) {
+      throw new Error(
+        "Option '--anchor-instance-key' is only supported with '--action move-before' or '--action move-after'."
+      );
     }
 
     return {

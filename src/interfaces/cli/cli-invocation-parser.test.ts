@@ -135,6 +135,27 @@ describe("StrictCliInvocationParser", () => {
     });
   });
 
+  test("parses live-module-instance-action reorder actions with anchor keys", () => {
+    const parser = new StrictCliInvocationParser();
+
+    expect(
+      parser.parse([
+        "live-module-instance-action",
+        "--instance-key",
+        "colorbalancergb#0#1#mask",
+        "--action",
+        "move-after",
+        "--anchor-instance-key",
+        "exposure#0#0#"
+      ])
+    ).toEqual({
+      kind: "live-module-instance-action",
+      instanceKey: "colorbalancergb#0#1#mask",
+      action: "move-after",
+      anchorInstanceKey: "exposure#0#0#"
+    });
+  });
+
   test("rejects extra args for capabilities command", () => {
     const parser = new StrictCliInvocationParser();
 
@@ -164,6 +185,40 @@ describe("StrictCliInvocationParser", () => {
         "--action",
         "toggle"
       ])
-    ).toThrow("Option '--action' must be 'enable', 'disable', 'create', or 'duplicate'.");
+    ).toThrow(
+      "Option '--action' must be 'enable', 'disable', 'create', 'duplicate', 'move-before', or 'move-after'."
+    );
+  });
+
+  test("rejects reorder actions without anchor instance keys", () => {
+    const parser = new StrictCliInvocationParser();
+
+    expect(() =>
+      parser.parse([
+        "live-module-instance-action",
+        "--instance-key",
+        "colorbalancergb#0#1#mask",
+        "--action",
+        "move-before"
+      ])
+    ).toThrow("Missing required option '--anchor-instance-key'.");
+  });
+
+  test("rejects anchor instance keys for non-reorder actions", () => {
+    const parser = new StrictCliInvocationParser();
+
+    expect(() =>
+      parser.parse([
+        "live-module-instance-action",
+        "--instance-key",
+        "exposure#0#0#",
+        "--action",
+        "disable",
+        "--anchor-instance-key",
+        "colorbalancergb#0#1#mask"
+      ])
+    ).toThrow(
+      "Option '--anchor-instance-key' is only supported with '--action move-before' or '--action move-after'."
+    );
   });
 });

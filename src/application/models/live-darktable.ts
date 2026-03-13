@@ -98,18 +98,25 @@ export type LiveDarktableUnavailableReason =
   | "unsupported-view"
   | "no-active-image"
   | "unknown-instance-key"
+  | "unknown-anchor-instance-key"
   | "unsupported-module-action"
   | "unsupported-module-state"
   | "module-action-failed"
+  | "module-reorder-blocked-by-fence"
+  | "module-reorder-blocked-by-rule"
+  | "module-reorder-no-op"
   | "snapshot-unavailable";
 
 export type LiveDarktableToggleModuleInstanceAction = "enable" | "disable";
 
 export type LiveDarktableForkModuleInstanceAction = "create" | "duplicate";
 
+export type LiveDarktableReorderModuleInstanceAction = "move-before" | "move-after";
+
 export type LiveDarktableModuleInstanceAction =
   | LiveDarktableToggleModuleInstanceAction
-  | LiveDarktableForkModuleInstanceAction;
+  | LiveDarktableForkModuleInstanceAction
+  | LiveDarktableReorderModuleInstanceAction;
 
 interface LiveDarktableModuleInstanceActionResultCommon {
   readonly targetInstanceKey: string;
@@ -138,19 +145,31 @@ export interface LiveDarktableForkModuleInstanceActionResult
   readonly resultInstanceKey: string;
 }
 
+export interface LiveDarktableReorderModuleInstanceActionResult
+  extends LiveDarktableModuleInstanceActionResultCommon {
+  readonly action: LiveDarktableReorderModuleInstanceAction;
+  readonly anchorInstanceKey: string;
+  readonly previousIopOrder: number;
+  readonly currentIopOrder: number;
+}
+
 export type LiveDarktableModuleInstanceActionResult =
   | LiveDarktableToggleModuleInstanceActionResult
-  | LiveDarktableForkModuleInstanceActionResult;
+  | LiveDarktableForkModuleInstanceActionResult
+  | LiveDarktableReorderModuleInstanceActionResult;
 
 export interface LiveDarktableUnavailableModuleInstanceActionResult {
   readonly targetInstanceKey: string;
   readonly action: string;
+  readonly anchorInstanceKey?: string;
   readonly requestedEnabled?: boolean;
   readonly resultInstanceKey?: string;
   readonly moduleOp?: string;
   readonly iopOrder?: number;
   readonly multiPriority?: number;
   readonly multiName?: string;
+  readonly previousIopOrder?: number;
+  readonly currentIopOrder?: number;
   readonly previousEnabled?: boolean;
   readonly currentEnabled?: boolean;
   readonly changed?: boolean;
