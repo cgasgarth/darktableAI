@@ -12,7 +12,6 @@ const diagnostics = {
 describe("DarktableLiveBridgeResponseParser", (): void => {
   test("parses available get-session payloads", (): void => {
     const parser = new DarktableLiveBridgeResponseParser();
-
     const result = parser.parseGetSession(
       JSON.stringify({
         bridgeVersion: 1,
@@ -60,7 +59,6 @@ describe("DarktableLiveBridgeResponseParser", (): void => {
 
   test("parses unavailable payloads", (): void => {
     const parser = new DarktableLiveBridgeResponseParser();
-
     expect(
       parser.parseGetSession(
         JSON.stringify({
@@ -80,7 +78,6 @@ describe("DarktableLiveBridgeResponseParser", (): void => {
 
   test("parses set-exposure payloads", (): void => {
     const parser = new DarktableLiveBridgeResponseParser();
-
     const result = parser.parseSetExposure(
       JSON.stringify({
         bridgeVersion: 1,
@@ -120,7 +117,7 @@ describe("DarktableLiveBridgeResponseParser", (): void => {
     });
   });
 
-  test("rejects malformed helper payloads", (): void => {
+  test("rejects malformed set-exposure payloads", (): void => {
     const parser = new DarktableLiveBridgeResponseParser();
 
     expect(() =>
@@ -145,4 +142,5 @@ describe("DarktableLiveBridgeResponseParser", (): void => {
       )
     ).toThrow("darktable-live-bridge field 'exposure.requestedRenderSequence' must be an integer.");
   });
+
 });

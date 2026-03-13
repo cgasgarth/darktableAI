@@ -4,6 +4,7 @@ export type CliInvocation =
   | RenderPreviewCliInvocation
   | CapabilitiesCliInvocation
   | LiveSessionInfoCliInvocation
+  | LiveSessionSnapshotCliInvocation
   | LiveSetExposureCliInvocation;
 
 export interface HelpCliInvocation {
@@ -26,6 +27,10 @@ export interface CapabilitiesCliInvocation {
 
 export interface LiveSessionInfoCliInvocation {
   readonly kind: "live-session-info";
+}
+
+export interface LiveSessionSnapshotCliInvocation {
+  readonly kind: "live-session-snapshot";
 }
 
 export type LiveSetExposureCliInvocation =

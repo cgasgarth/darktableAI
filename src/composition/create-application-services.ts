@@ -1,11 +1,13 @@
 import { StrictDevelopRecipeValidator } from "../contracts/develop-recipe";
 import { CreatePreviewRender } from "../application/use-cases/create-preview-render";
+import { GetLiveDarktableSnapshot } from "../application/use-cases/get-live-darktable-snapshot";
 import { GetLiveDarktableSession } from "../application/use-cases/get-live-darktable-session";
 import { RunDarktableSmokeTest } from "../application/use-cases/run-darktable-smoke-test";
 import { SetLiveDarktableExposure } from "../application/use-cases/set-live-darktable-exposure";
 import { RunDarktableSmokeCommand } from "../interfaces/cli/run-darktable-smoke-command";
 import { RunAdjustmentCapabilitiesCommand } from "../interfaces/cli/run-adjustment-capabilities-command";
 import { RunLiveSessionInfoCommand } from "../interfaces/cli/run-live-session-info-command";
+import { RunLiveSessionSnapshotCommand } from "../interfaces/cli/run-live-session-snapshot-command";
 import { RunLiveSetExposureCommand } from "../interfaces/cli/run-live-set-exposure-command";
 import { RunPreviewRenderCommand } from "../interfaces/cli/run-preview-render-command";
 import { EnvironmentDarktableBinaryLocator } from "../infrastructure/darktable/environment-darktable-binary-locator";
@@ -27,6 +29,7 @@ interface ApplicationServiceContainer {
   readonly runDarktableSmokeCommand: RunDarktableSmokeCommand;
   readonly runAdjustmentCapabilitiesCommand: RunAdjustmentCapabilitiesCommand;
   readonly runLiveSessionInfoCommand: RunLiveSessionInfoCommand;
+  readonly runLiveSessionSnapshotCommand: RunLiveSessionSnapshotCommand;
   readonly runLiveSetExposureCommand: RunLiveSetExposureCommand;
 }
 
@@ -79,6 +82,7 @@ export const createApplicationServices = (): ApplicationServiceContainer => {
   );
 
   const getLiveDarktableSession = new GetLiveDarktableSession(liveBridge);
+  const getLiveDarktableSnapshot = new GetLiveDarktableSnapshot(liveBridge);
   const setLiveDarktableExposure = new SetLiveDarktableExposure(
     liveBridge,
     systemClock,
@@ -95,6 +99,7 @@ export const createApplicationServices = (): ApplicationServiceContainer => {
 
   const runAdjustmentCapabilitiesCommand = new RunAdjustmentCapabilitiesCommand();
   const runLiveSessionInfoCommand = new RunLiveSessionInfoCommand(getLiveDarktableSession);
+  const runLiveSessionSnapshotCommand = new RunLiveSessionSnapshotCommand(getLiveDarktableSnapshot);
   const runLiveSetExposureCommand = new RunLiveSetExposureCommand(setLiveDarktableExposure);
 
   return {
@@ -102,6 +107,7 @@ export const createApplicationServices = (): ApplicationServiceContainer => {
     runDarktableSmokeCommand,
     runAdjustmentCapabilitiesCommand,
     runLiveSessionInfoCommand,
+    runLiveSessionSnapshotCommand,
     runLiveSetExposureCommand
   };
 };

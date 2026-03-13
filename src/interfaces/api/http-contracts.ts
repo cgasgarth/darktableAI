@@ -8,6 +8,7 @@ import type {
   LiveDarktableCommandDiagnostics,
   LiveDarktableExposureChange,
   LiveDarktableExposureState,
+  LiveDarktableSnapshotState,
   LiveDarktableSessionState,
   LiveDarktableSetExposureWaitOutcome
 } from "../../application/models/live-darktable";
@@ -81,6 +82,14 @@ export interface LiveSessionInfoResponse extends LiveResponseCommon {
   readonly session?: LiveDarktableSessionState;
   readonly activeImage?: LiveDarktableActiveImage;
   readonly exposure?: LiveDarktableExposureState;
+}
+
+export interface LiveSessionSnapshotResponse extends LiveResponseCommon {
+  readonly diagnostics: LiveDarktableCommandDiagnostics;
+  readonly reason?: "unsupported-view" | "no-active-image";
+  readonly session?: LiveDarktableSessionState;
+  readonly activeImage?: LiveDarktableActiveImage;
+  readonly snapshot?: LiveDarktableSnapshotState;
 }
 
 export interface LiveSetExposureResponse extends LiveResponseCommon {

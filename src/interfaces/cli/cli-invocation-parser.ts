@@ -34,6 +34,10 @@ export class StrictCliInvocationParser implements CliInvocationParser {
       return this.parseLiveSessionInfo(rest);
     }
 
+    if (command === "live-session-snapshot") {
+      return this.parseLiveSessionSnapshot(rest);
+    }
+
     if (command === "live-set-exposure") {
       return this.parseLiveSetExposure(rest);
     }
@@ -72,6 +76,14 @@ export class StrictCliInvocationParser implements CliInvocationParser {
 
     return {
       kind: "live-session-info"
+    };
+  }
+
+  private parseLiveSessionSnapshot(argv: ReadonlyArray<string>): CliInvocation {
+    this.assertNoPositionalArgs(argv, "live-session-snapshot");
+
+    return {
+      kind: "live-session-snapshot"
     };
   }
 

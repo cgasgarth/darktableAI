@@ -63,6 +63,13 @@ async function run(): Promise<never> {
 
       return handleCommandResult(result);
     }
+    case "live-session-snapshot": {
+      const result = await services.runLiveSessionSnapshotCommand.execute({
+        requestId: crypto.randomUUID()
+      });
+
+      return handleCommandResult(result);
+    }
     case "live-set-exposure": {
       const result = await services.runLiveSetExposureCommand.execute(
         invocation.wait.mode === "none"
@@ -110,6 +117,7 @@ function getHelpText(): string {
     "  bun run cli -- smoke --fixture <fixture-id>",
     "  bun run cli -- render-preview --recipe-file <path>",
     "  bun run cli -- live-session-info",
+    "  bun run cli -- live-session-snapshot",
     "  bun run cli -- live-set-exposure --exposure <ev>",
     "  bun run cli -- live-set-exposure --exposure <ev> --timeout-ms <ms> --poll-interval-ms <ms>",
     "",
@@ -118,6 +126,7 @@ function getHelpText(): string {
     "  bun run cli -- smoke --fixture sample-fixture",
     "  bun run cli -- render-preview --recipe-file examples/recipes/sample-develop-recipe.json",
     "  bun run cli -- live-session-info",
+    "  bun run cli -- live-session-snapshot",
     "  bun run cli -- live-set-exposure --exposure 0.5 --timeout-ms 1500 --poll-interval-ms 100",
     "",
     "Success responses print JSON on stdout. Failures print human-readable errors on stderr."

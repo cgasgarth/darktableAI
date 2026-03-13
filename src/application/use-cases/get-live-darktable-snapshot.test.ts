@@ -1,25 +1,25 @@
 import { describe, expect, test } from "bun:test";
 
-import { GetLiveDarktableSession } from "./get-live-darktable-session";
+import { GetLiveDarktableSnapshot } from "./get-live-darktable-snapshot";
 
-describe("GetLiveDarktableSession", (): void => {
-  test("returns the current live session snapshot", async (): Promise<void> => {
-    const useCase = new GetLiveDarktableSession({
-      getSession: () =>
+describe("GetLiveDarktableSnapshot", (): void => {
+  test("returns the current live snapshot readback", async (): Promise<void> => {
+    const useCase = new GetLiveDarktableSnapshot({
+      getSession: () => {
+        throw new Error("Unexpected call.");
+      },
+      getSnapshot: () =>
         Promise.resolve({
           bridgeVersion: 1,
           status: "unavailable" as const,
           reason: "unsupported-view" as const,
           diagnostics: {
             helperBinaryPath: "/helper",
-            commandArguments: ["/helper", "get-session"],
+            commandArguments: ["/helper", "get-snapshot"],
             exitCode: 0,
             elapsedMilliseconds: 4
           }
         }),
-      getSnapshot: () => {
-        throw new Error("Unexpected call.");
-      },
       setExposure: () => {
         throw new Error("Unexpected call.");
       }
@@ -31,7 +31,7 @@ describe("GetLiveDarktableSession", (): void => {
       reason: "unsupported-view",
       diagnostics: {
         helperBinaryPath: "/helper",
-        commandArguments: ["/helper", "get-session"],
+        commandArguments: ["/helper", "get-snapshot"],
         exitCode: 0,
         elapsedMilliseconds: 4
       }

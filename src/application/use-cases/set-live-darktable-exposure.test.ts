@@ -213,6 +213,10 @@ class StubGateway {
     return Promise.resolve(session);
   }
 
+  public getSnapshot(): Promise<never> {
+    throw new Error("Unexpected getSnapshot call.");
+  }
+
   public setExposure(): Promise<LiveDarktableExposureMutation> {
     return Promise.resolve(this.state.mutation);
   }
