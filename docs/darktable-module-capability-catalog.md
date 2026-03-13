@@ -26,6 +26,11 @@ Support and backlog fields:
 - `liveSupport` tracks truthful live-session mutation support only.
 - `parameterBacklogStatus` is `complete`, `partial`, `queued`, `blocked`, or `not-applicable`.
 
+Lifecycle note:
+
+- The catalog tracks per-module parameter support, not the cross-cutting module-instance lifecycle surface.
+- Live lifecycle actions such as `enable`, `disable`, `create`, `duplicate`, `delete`, `move-before`, and `move-after` now ship through `live-module-instance-action`, even for modules whose parameter-level `liveSupport` is still `unsupported`.
+
 Workflow for future PRs:
 
 1. Update `src/contracts/darktable-module-capability-catalog.ts` first.
@@ -35,7 +40,7 @@ Workflow for future PRs:
 
 Usage notes:
 
-- Treat `bun run cli -- capabilities` as the operator-facing support summary.
+- Treat `bun run cli -- capabilities` as the operator-facing support summary, not a full map of lifecycle-command coverage.
 - Treat the catalog as the planning and implementation source of truth when deciding which PR slice comes next.
 - A module marked `partial` already has some truthful support merged, but it is not done until the remaining parameter backlog is closed and the relevant PR is merged.
 
