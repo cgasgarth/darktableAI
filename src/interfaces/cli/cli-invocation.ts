@@ -34,11 +34,18 @@ export interface LiveSessionSnapshotCliInvocation {
   readonly kind: "live-session-snapshot";
 }
 
-export interface LiveModuleInstanceActionCliInvocation {
-  readonly kind: "live-module-instance-action";
-  readonly instanceKey: string;
-  readonly action: "enable" | "disable" | "create" | "duplicate";
-}
+export type LiveModuleInstanceActionCliInvocation =
+  | {
+      readonly kind: "live-module-instance-action";
+      readonly instanceKey: string;
+      readonly action: "enable" | "disable" | "create" | "duplicate";
+    }
+  | {
+      readonly kind: "live-module-instance-action";
+      readonly instanceKey: string;
+      readonly action: "move-before" | "move-after";
+      readonly anchorInstanceKey: string;
+    };
 
 export type LiveSetExposureCliInvocation =
   | {

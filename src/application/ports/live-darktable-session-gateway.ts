@@ -1,6 +1,8 @@
 import type {
-  LiveDarktableModuleInstanceAction,
+  LiveDarktableForkModuleInstanceAction,
   LiveDarktableModuleInstanceActionMutation,
+  LiveDarktableReorderModuleInstanceAction,
+  LiveDarktableToggleModuleInstanceAction,
   LiveDarktableExposureMutation,
   LiveDarktableSnapshotReadback,
   LiveDarktableSessionSnapshot
@@ -10,10 +12,16 @@ export interface SetLiveDarktableExposureRequest {
   readonly exposure: number;
 }
 
-export interface ApplyLiveDarktableModuleInstanceActionRequest {
-  readonly instanceKey: string;
-  readonly action: LiveDarktableModuleInstanceAction;
-}
+export type ApplyLiveDarktableModuleInstanceActionRequest =
+  | {
+      readonly instanceKey: string;
+      readonly action: LiveDarktableToggleModuleInstanceAction | LiveDarktableForkModuleInstanceAction;
+    }
+  | {
+      readonly instanceKey: string;
+      readonly action: LiveDarktableReorderModuleInstanceAction;
+      readonly anchorInstanceKey: string;
+    };
 
 export interface LiveDarktableSessionGateway {
   getSession(): Promise<LiveDarktableSessionSnapshot>;

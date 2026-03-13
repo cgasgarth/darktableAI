@@ -54,7 +54,10 @@ export class DarktableLiveBridge implements LiveDarktableSessionGateway {
     const execution = await this.runBridgeCommand([
       "apply-module-instance-action",
       request.instanceKey,
-      request.action
+      request.action,
+      ...(request.action === "move-before" || request.action === "move-after"
+        ? [request.anchorInstanceKey]
+        : [])
     ]);
 
     return this.parser.parseApplyModuleInstanceAction(execution.stdout, execution.diagnostics);
