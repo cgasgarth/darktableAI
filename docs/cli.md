@@ -57,7 +57,7 @@ bun run cli -- smoke --fixture sample-fixture
 ```
 
 Current fixture IDs:
-- `sample-fixture` -> `../_DSC8809.ARW`
+- `sample-fixture` -> `assets/_DSC8809.ARW`
 - `legacy-sony-a7m5-fixture` -> `../DSC00075.ARW`
 
 On success, the command prints JSON including:
@@ -83,7 +83,7 @@ Example success payload:
   "manifestId": "smoke-manifest-123",
   "manifestPath": "/repo/artifacts/manifests/smoke-manifest-123.json",
   "outputImagePath": "/repo/artifacts/smoke/smoke-manifest-123-smoke.jpg",
-  "sourceAssetPath": "/repo/_DSC8809.ARW",
+  "sourceAssetPath": "/repo/assets/_DSC8809.ARW",
   "diagnostics": {
     "binaryPath": "/usr/bin/darktable-cli",
     "commandArguments": ["/usr/bin/darktable-cli", "..."],
@@ -143,13 +143,13 @@ Example success payload:
   "manifestId": "preview-manifest-123",
   "manifestPath": "/repo/artifacts/manifests/preview-manifest-123.json",
   "outputImagePath": "/repo/artifacts/preview/preview-manifest-123-preview.jpg",
-  "sourceAssetPath": "/repo/_DSC8809.ARW",
+  "sourceAssetPath": "/repo/assets/_DSC8809.ARW",
   "compiledArtifactPath": "/repo/artifacts/preview/recipes/compile-123.xmp",
   "diagnostics": {
     "binaryPath": "/usr/bin/darktable-cli",
     "commandArguments": [
       "/usr/bin/darktable-cli",
-      "/repo/_DSC8809.ARW",
+      "/repo/assets/_DSC8809.ARW",
       "/repo/artifacts/preview/recipes/compile-123.xmp",
       "/repo/artifacts/preview/preview-manifest-123-preview.jpg",
       "--core",
