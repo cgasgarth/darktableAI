@@ -87,7 +87,19 @@ bun run cli -- help
 bun run cli -- capabilities
 bun run cli -- smoke --fixture sample-fixture
 bun run cli -- render-preview --recipe-file examples/recipes/sample-develop-recipe.json
+bun run cli -- live-session-info
+bun run cli -- live-set-exposure --exposure 1.25 --timeout-ms 1500 --poll-interval-ms 100
 ```
+
+Reusable validation commands:
+
+```bash
+bun run smoke:preview
+bun run smoke:live
+```
+
+- `smoke:preview` is the 15-second darktable-cli fixture smoke check.
+- `smoke:live` is the 15-second tmux/dbus/xvfb live-session validation against the sibling `darktable` fork helper.
 
 Typical preview loop:
 1. Write or update a recipe JSON file.
@@ -133,6 +145,15 @@ bun run test:integration
 ```
 
 Use that integration suite when you change darktable execution, fixture handling, recipe compilation, or artifact layout on a machine with darktable installed.
+
+For fast manual validation during live-control work:
+
+```bash
+bun run smoke:preview
+bun run smoke:live
+```
+
+Both commands are wrapped in hard 15-second timeouts so they fail fast instead of hanging the session.
 
 ## Contributing
 

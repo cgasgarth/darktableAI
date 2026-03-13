@@ -30,6 +30,14 @@ export class StrictCliInvocationParser implements CliInvocationParser {
       return this.parseCapabilities(rest);
     }
 
+    if (command === "live-session-info") {
+      return this.parseLiveSessionInfo(rest);
+    }
+
+    if (command === "live-set-exposure") {
+      return this.parseLiveSetExposure(rest);
+    }
+
     throw new Error(`Unknown command '${command}'. Run 'bun run cli -- help' for usage.`);
   }
 
@@ -59,6 +67,46 @@ export class StrictCliInvocationParser implements CliInvocationParser {
     };
   }
 
+  private parseLiveSessionInfo(argv: ReadonlyArray<string>): CliInvocation {
+    this.assertNoPositionalArgs(argv, "live-session-info");
+
+    return {
+      kind: "live-session-info"
+    };
+  }
+
+  private parseLiveSetExposure(argv: ReadonlyArray<string>): CliInvocation {
+    const exposure = this.readNumberOption(argv, "--exposure");
+    const timeoutMilliseconds = this.readOptionalIntegerOption(argv, "--timeout-ms");
+    const pollIntervalMilliseconds = this.readOptionalIntegerOption(argv, "--poll-interval-ms");
+
+    if (timeoutMilliseconds === undefined && pollIntervalMilliseconds === undefined) {
+      return {
+        kind: "live-set-exposure",
+        exposure,
+        wait: {
+          mode: "none"
+        }
+      };
+    }
+
+    if (timeoutMilliseconds === undefined || pollIntervalMilliseconds === undefined) {
+      throw new Error(
+        "Command 'live-set-exposure' requires both '--timeout-ms' and '--poll-interval-ms' when waiting for render completion."
+      );
+    }
+
+    return {
+      kind: "live-set-exposure",
+      exposure,
+      wait: {
+        mode: "until-render",
+        timeoutMilliseconds,
+        pollIntervalMilliseconds
+      }
+    };
+  }
+
   private readRequiredOption(argv: ReadonlyArray<string>, optionName: string): string {
     const optionIndex = argv.indexOf(optionName);
 
@@ -73,6 +121,56 @@ export class StrictCliInvocationParser implements CliInvocationParser {
     }
 
     return optionValue;
+  }
+
+  private readOptionalOption(argv: ReadonlyArray<string>, optionName: string): string | undefined {
+    const optionIndex = argv.indexOf(optionName);
+
+    if (optionIndex === -1) {
+      return undefined;
+    }
+
+    const optionValue = argv[optionIndex + 1];
+
+    if (optionValue === undefined || optionValue.startsWith("--")) {
+      throw new Error(`Option '${optionName}' requires a value.`);
+    }
+
+    return optionValue;
+  }
+
+  private readNumberOption(argv: ReadonlyArray<string>, optionName: string): number {
+    const optionValue = this.readRequiredOption(argv, optionName);
+    return this.parseFiniteNumber(optionValue, optionName);
+  }
+
+  private readOptionalIntegerOption(
+    argv: ReadonlyArray<string>,
+    optionName: string
+  ): number | undefined {
+    const optionValue = this.readOptionalOption(argv, optionName);
+
+    if (optionValue === undefined) {
+      return undefined;
+    }
+
+    const parsed = this.parseFiniteNumber(optionValue, optionName);
+
+    if (!Number.isInteger(parsed) || parsed <= 0) {
+      throw new Error(`Option '${optionName}' must be a positive integer.`);
+    }
+
+    return parsed;
+  }
+
+  private parseFiniteNumber(optionValue: string, optionName: string): number {
+    const parsed = Number(optionValue);
+
+    if (!Number.isFinite(parsed)) {
+      throw new Error(`Option '${optionName}' must be a finite number.`);
+    }
+
+    return parsed;
   }
 
   private isHelpFlag(value: string): boolean {

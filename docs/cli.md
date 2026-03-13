@@ -29,7 +29,17 @@ Show command usage.
 bun run cli -- help
 ```
 
-Current commands: `help`, `capabilities`, `smoke`, `render-preview`.
+Current commands: `help`, `capabilities`, `smoke`, `render-preview`, `live-session-info`, `live-set-exposure`.
+
+Reusable package-level smoke aliases:
+
+```bash
+bun run smoke:preview
+bun run smoke:live
+```
+
+- `smoke:preview` wraps the fixture-backed `smoke` CLI path with a hard 15-second timeout.
+- `smoke:live` runs the end-to-end live darktable validation flow under a hard 15-second timeout.
 
 ### `capabilities`
 
@@ -186,3 +196,45 @@ Canonical agent loop:
 4. Parse stdout JSON.
 5. Inspect `manifestPath`, `compiledArtifactPath`, `outputImagePath`, and `diagnostics`.
 6. Update the recipe and rerun.
+
+### `live-session-info`
+
+Reads the current live darktable GUI session through the sibling `darktable-live-bridge` helper.
+
+```bash
+bun run cli -- live-session-info
+```
+
+Success returns JSON-only stdout with:
+- `requestId`
+- `bridgeVersion`
+- `status`
+- `session.{view,renderSequence,historyChangeSequence,imageLoadSequence}`
+- `activeImage.{imageId,directoryPath,fileName,sourceAssetPath}` when available
+- `exposure.current` when available
+- `diagnostics.{helperBinaryPath,commandArguments,exitCode,elapsedMilliseconds}`
+
+Normal unavailable states such as no active darkroom image stay machine-readable on stdout with `status: "unavailable"`.
+
+### `live-set-exposure`
+
+Applies an exposure change to the image currently shown in darkroom through the live bridge.
+
+```bash
+bun run cli -- live-set-exposure --exposure 1.25
+bun run cli -- live-set-exposure --exposure 1.25 --timeout-ms 1500 --poll-interval-ms 100
+```
+
+Behavior:
+- `--exposure` is an absolute EV target.
+- if both wait flags are provided, the command polls until the requested render sequence is observed or the wait times out.
+- helper transport failures stay non-zero/stderr; expected unavailable states stay JSON/stdout.
+
+Success returns JSON-only stdout with:
+- `requestId`
+- `bridgeVersion`
+- `status`
+- `setExposure.{previous,requested,current,requestedRenderSequence}`
+- `wait.{mode,targetRenderSequence,latestObservedRenderSequence,pollCount,completed,timedOut,...}` when wait mode is used
+- `session`, `activeImage`, `exposure`
+- `diagnostics` for every helper call made during the command
