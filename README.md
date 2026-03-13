@@ -99,7 +99,7 @@ bun run smoke:live
 ```
 
 - `smoke:preview` is the 15-second darktable-cli fixture smoke check.
-- `smoke:live` is the 15-second tmux/dbus/xvfb live-session validation against the sibling `darktable` fork helper.
+- `smoke:live` is the 15-second tmux/dbus/xvfb live-session validation that expects live exposure mutation to complete and read back through the sibling `darktable` fork helper.
 
 Typical preview loop:
 1. Write or update a recipe JSON file.
@@ -153,7 +153,7 @@ bun run smoke:preview
 bun run smoke:live
 ```
 
-Both commands are wrapped in hard 15-second timeouts so they fail fast instead of hanging the session.
+Both commands are wrapped in hard 15-second timeouts so they fail fast instead of hanging the session, while `smoke:live` still requires the exposure mutation to complete successfully inside that bound.
 
 ## Contributing
 

@@ -11,7 +11,7 @@ export interface ValidateLiveSmokeInput {
 }
 
 export interface SmokeOutcome {
-  readonly mode: "render-completed" | "timed-out-known-limitation";
+  readonly mode: "render-completed";
   readonly note: string;
 }
 
@@ -27,19 +27,7 @@ type JsonRecord = Record<string, unknown>;
 export function validateLiveSmoke(input: ValidateLiveSmokeInput): SmokeOutcome {
   const firstExposure = validateSessionInfo(input.firstSession, "first live-session-info", input);
   const secondExposure = validateSessionInfo(input.secondSession, "second live-session-info", input);
-  const mutationState = validateExposureMutation(input.mutation, firstExposure, secondExposure, input);
-
-  if (mutationState.mode === "render-completed") {
-    return {
-      mode: mutationState.mode,
-      note: "Exposure mutation completed and read back at the requested value."
-    };
-  }
-
-  return {
-    mode: mutationState.mode,
-    note: "Known limitation: packaged darktable advertises a successful exposure request, but render completion and exposure readback stay unchanged in this headless live session."
-  };
+  return validateExposureMutation(input.mutation, firstExposure, secondExposure, input);
 }
 
 function validateSessionInfo(
@@ -122,6 +110,12 @@ function validateExposureMutation(
     input.floatTolerance,
     "live-set-exposure previous exposure no longer matches the first session snapshot."
   );
+  assertNotApproximately(
+    firstSession.currentExposure,
+    input.requestedExposure,
+    input.floatTolerance,
+    "live-set-exposure started at the requested exposure, so the smoke run did not prove a real mutation."
+  );
   assertEquals(
     readString(activeImage, "sourceAssetPath", "live-set-exposure activeImage"),
     input.assetPath,
@@ -174,6 +168,12 @@ function validateExposureMutation(
       input.floatTolerance,
       "second live-session-info no longer reports the requested exposure."
     );
+    assertNotApproximately(
+      secondSession.currentExposure,
+      firstSession.currentExposure,
+      input.floatTolerance,
+      "live-set-exposure completed without changing the reported exposure."
+    );
 
     return {
       mode: "render-completed",
@@ -181,42 +181,8 @@ function validateExposureMutation(
     };
   }
 
-  assert(timedOut, "Incomplete live-set-exposure waits must time out.");
-  assert(
-    latestObservedRenderSequence < requestedRenderSequence,
-    "Timed out live-set-exposure unexpectedly observed the requested render sequence."
-  );
-  assert(
-    mutationRenderSequence < requestedRenderSequence,
-    "Timed out live-set-exposure session render sequence unexpectedly reached the target."
-  );
-  assert(
-    secondSession.renderSequence <= requestedRenderSequence,
-    "Second live-session-info render sequence advanced beyond the requested target during timeout mode."
-  );
-  assertApproximately(
-    mutationReadback,
-    firstSession.currentExposure,
-    input.floatTolerance,
-    "Timed out live-set-exposure mutation readback changed unexpectedly."
-  );
-  assertApproximately(
-    sessionReadback,
-    firstSession.currentExposure,
-    input.floatTolerance,
-    "Timed out live-set-exposure session readback changed unexpectedly."
-  );
-  assertApproximately(
-    secondSession.currentExposure,
-    firstSession.currentExposure,
-    input.floatTolerance,
-    "Second live-session-info exposure changed unexpectedly during timeout mode."
-  );
-
-  return {
-    mode: "timed-out-known-limitation",
-    note: "Known limitation: live-set-exposure never completes against the packaged headless darktable session on this machine."
-  };
+  assert(!timedOut, "live-set-exposure timed out instead of completing against the fixed helper.");
+  throw new Error("live-set-exposure neither completed nor timed out.");
 }
 
 function assertCommandArguments(record: JsonRecord, expected: ReadonlyArray<string>, label: string): void {
@@ -318,6 +284,12 @@ function assertEquals<T>(actual: T, expected: T, message: string): void {
 function assertApproximately(actual: number, expected: number, tolerance: number, message: string): void {
   if (Math.abs(actual - expected) > tolerance) {
     throw new Error(`${message} Expected ${String(expected)}, received ${String(actual)}.`);
+  }
+}
+
+function assertNotApproximately(actual: number, expected: number, tolerance: number, message: string): void {
+  if (Math.abs(actual - expected) <= tolerance) {
+    throw new Error(`${message} Expected value different from ${String(expected)}, received ${String(actual)}.`);
   }
 }
 

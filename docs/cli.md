@@ -39,7 +39,7 @@ bun run smoke:live
 ```
 
 - `smoke:preview` wraps the fixture-backed `smoke` CLI path with a hard 15-second timeout.
-- `smoke:live` runs the end-to-end live darktable validation flow under a hard 15-second timeout.
+- `smoke:live` runs the end-to-end live darktable validation flow under a hard 15-second timeout and expects the requested exposure mutation to complete.
 
 ### `capabilities`
 

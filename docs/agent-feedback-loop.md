@@ -12,7 +12,7 @@ If the editing surface is CLI-first, then yes: we need an explicit feedback loop
 6. Periodically run `bun run smoke:preview` to verify the darktable worker path is still healthy.
 7. Treat `diagnostics.commandArguments` and `diagnostics.runtimeState` as the canonical debug trail for each successful run.
 
-For live GUI control work, also run `bun run smoke:live`. That script uses the sibling `darktable-live-bridge` helper, a tmux-hosted darktable session, and a hard 15-second timeout so validation fails fast instead of hanging.
+For live GUI control work, also run `bun run smoke:live`. That script uses the sibling `darktable-live-bridge` helper, a tmux-hosted darktable session, and a hard 15-second timeout so validation fails fast instead of hanging while still requiring the exposure mutation to complete and read back successfully.
 
 Example preview response:
 

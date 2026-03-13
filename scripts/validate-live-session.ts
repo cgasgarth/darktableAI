@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { mkdir, mkdtemp, rm } from "node:fs/promises";
+import { copyFile, mkdir, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -8,7 +8,7 @@ import { validateLiveSmoke } from "./validate-live-session-support";
 
 const PROJECT_ROOT = path.resolve(import.meta.dir, "..");
 const SCRIPT_PATH = path.resolve(PROJECT_ROOT, "scripts/validate-live-session.ts");
-const ASSET_PATH = path.resolve(PROJECT_ROOT, "assets/_DSC8809.ARW");
+const FIXTURE_ASSET_PATH = path.resolve(PROJECT_ROOT, "assets/_DSC8809.ARW");
 const LIVE_BRIDGE_PATH = path.resolve(PROJECT_ROOT, "../darktable/build/bin/darktable-live-bridge");
 const REQUESTED_EXPOSURE = 1.25;
 const TOTAL_TIMEOUT_MS = 15_000;
@@ -62,6 +62,7 @@ async function runValidation(): Promise<Record<string, unknown>> {
   const cacheDirectory = path.join(runtimeRoot, "cache");
   const temporaryDirectory = path.join(runtimeRoot, "tmp");
   const runtimeDirectory = path.join(runtimeRoot, "runtime");
+  const isolatedAssetPath = path.join(runtimeRoot, path.basename(FIXTURE_ASSET_PATH));
   const libraryPath = path.join(runtimeRoot, "library.db");
   const darktableLogPath = path.join(runtimeRoot, "darktable.log");
   const tmuxSocketName = `darktableai-live-${String(process.pid)}`;
@@ -73,6 +74,7 @@ async function runValidation(): Promise<Record<string, unknown>> {
     mkdir(temporaryDirectory, { recursive: true }),
     mkdir(runtimeDirectory, { recursive: true })
   ]);
+  await copyFile(FIXTURE_ASSET_PATH, isolatedAssetPath);
 
   const darktableCommand = [
     "export NO_AT_BRIDGE=1",
@@ -80,7 +82,7 @@ async function runValidation(): Promise<Record<string, unknown>> {
     "export GIO_USE_VFS=local",
     "export GVFS_DISABLE_FUSE=1",
     `export XDG_RUNTIME_DIR='${runtimeDirectory}'`,
-    `exec xvfb-run -a /usr/bin/darktable '${ASSET_PATH}' --configdir '${configDirectory}' --cachedir '${cacheDirectory}' --library '${libraryPath}' --disable-opencl --tmpdir '${temporaryDirectory}' >'${darktableLogPath}' 2>&1`
+    `exec xvfb-run -a /usr/bin/darktable '${isolatedAssetPath}' --configdir '${configDirectory}' --cachedir '${cacheDirectory}' --library '${libraryPath}' --disable-opencl --tmpdir '${temporaryDirectory}' >'${darktableLogPath}' 2>&1`
   ].join(" && ");
 
   try {
@@ -116,7 +118,7 @@ async function runValidation(): Promise<Record<string, unknown>> {
       firstSession,
       mutation,
       secondSession,
-      assetPath: ASSET_PATH,
+      assetPath: isolatedAssetPath,
       liveBridgePath: LIVE_BRIDGE_PATH,
       requestedExposure: REQUESTED_EXPOSURE,
       setTimeoutMilliseconds: SET_TIMEOUT_MS,
@@ -128,7 +130,7 @@ async function runValidation(): Promise<Record<string, unknown>> {
       status: "ok",
       mode: outcome.mode,
       note: outcome.note,
-      assetPath: ASSET_PATH,
+      assetPath: isolatedAssetPath,
       runtime: {
         configDirectory,
         cacheDirectory,
