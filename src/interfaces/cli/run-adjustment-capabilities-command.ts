@@ -1,4 +1,5 @@
 import { listAdjustmentCapabilities } from "../../contracts/adjustment-capability";
+import { listDarktableNativeCapabilities } from "../../contracts/darktable-native-capability";
 import type { AdjustmentCapabilitiesResponse } from "../api/http-contracts";
 import type { CliCommand, CliCommandResult } from "./cli-command";
 
@@ -15,7 +16,8 @@ export class RunAdjustmentCapabilitiesCommand
     return Promise.resolve({
       ok: true,
       output: {
-        adjustments: listAdjustmentCapabilities()
+        adjustments: listAdjustmentCapabilities(),
+        darktableNative: listDarktableNativeCapabilities()
       }
     });
   }

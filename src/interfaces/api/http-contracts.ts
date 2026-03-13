@@ -1,6 +1,7 @@
 import type { DevelopRecipe } from "../../contracts/develop-recipe";
 import type { DevelopRecipeValidationIssue } from "../../contracts/develop-recipe";
 import type { AdjustmentCapabilityRegistry } from "../../contracts/adjustment-capability";
+import type { DarktableNativeCapabilityRegistry } from "../../contracts/darktable-native-capability";
 import type { DarktableRenderDiagnostics } from "../../application/models/render-artifacts";
 
 export interface PreviewRenderRequest {
@@ -57,4 +58,5 @@ export type SmokeTestResponse =
 
 export interface AdjustmentCapabilitiesResponse {
   readonly adjustments: AdjustmentCapabilityRegistry;
+  readonly darktableNative: DarktableNativeCapabilityRegistry;
 }
