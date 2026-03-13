@@ -29,17 +29,19 @@ Show command usage.
 bun run cli -- help
 ```
 
-Current commands: `help`, `capabilities`, `smoke`, `render-preview`, `live-session-info`, `live-set-exposure`.
+Current commands: `help`, `capabilities`, `smoke`, `render-preview`, `live-session-info`, `live-session-snapshot`, `live-set-exposure`.
 
 Reusable package-level smoke aliases:
 
 ```bash
 bun run smoke:preview
 bun run smoke:live
+bun run smoke:live-snapshot
 ```
 
 - `smoke:preview` wraps the fixture-backed `smoke` CLI path with a hard 15-second timeout.
 - `smoke:live` runs the end-to-end live darktable validation flow under a hard 15-second timeout and expects the requested exposure mutation to complete.
+- `smoke:live-snapshot` runs the live snapshot readback validation under a hard 15-second timeout against the sibling fork build; local reruns can still expose the known repo-built darktable startup instability.
 
 ### `capabilities`
 
@@ -55,6 +57,10 @@ The payload currently reports:
 - planned or unsupported for the current sidecar compiler: `whites`, `blacks`
 - per-adjustment metadata including `status`, `darktableModule`, and `reason`
 - per-darktable-control metadata including `status`, `previewCompilationStatus`, `recipeAdjustmentKinds`, and `reason`
+
+Planning note:
+- `bun run cli -- capabilities` is the user-facing support summary.
+- `src/contracts/darktable-module-capability-catalog.ts` plus `docs/darktable-module-capability-catalog.md` are the audited planning source of truth for the full module backlog.
 
 Operator notes:
 - `temperature` and `tint` are truthful darktable temperature-module controls, but recipes must provide both together
@@ -216,6 +222,35 @@ Success returns JSON-only stdout with:
 
 Normal unavailable states such as no active darkroom image stay machine-readable on stdout with `status: "unavailable"`.
 
+Use this command for lightweight polling loops. It stays intentionally smaller than `live-session-snapshot`.
+
+### `live-session-snapshot`
+
+Reads the current live darkroom snapshot through the sibling `darktable-live-bridge` helper.
+
+```bash
+bun run cli -- live-session-snapshot
+```
+
+Success returns JSON-only stdout with:
+- `requestId`
+- `bridgeVersion`
+- `status`
+- `session.{view,renderSequence,historyChangeSequence,imageLoadSequence}`
+- `activeImage.{imageId,directoryPath,fileName,sourceAssetPath}`
+- `snapshot.appliedHistoryEnd`
+- `snapshot.controls[]` with current generic live-control metadata and values
+- `snapshot.moduleStack[]` with enabled-instance state and parameter encoding data
+- `snapshot.historyItems[]` with applied-history ordering and parameter encoding data
+- `diagnostics.{helperBinaryPath,commandArguments,exitCode,elapsedMilliseconds}`
+
+Current bridge/readback notes:
+- the generic live-control registry currently exposes `exposure.exposure`
+- snapshot controls are an array, not a module-keyed map
+- `moduleStack` is a truthful darkroom stack snapshot and must include the exposure module in the current validator contract
+- parameter blobs are encoded either as `introspection-v1` fields or `unsupported` when darktable does not expose a truthful typed walk
+- expected unavailable states still stay machine-readable on stdout with `status: "unavailable"`
+
 ### `live-set-exposure`
 
 Applies an exposure change to the image currently shown in darkroom through the live bridge.
@@ -228,6 +263,7 @@ bun run cli -- live-set-exposure --exposure 1.25 --timeout-ms 1500 --poll-interv
 Behavior:
 - `--exposure` is an absolute EV target.
 - if both wait flags are provided, the command polls until the requested render sequence is observed or the wait times out.
+- the mutation is the exposure-specific CLI on top of the generic live control id `exposure.exposure`
 - helper transport failures stay non-zero/stderr; expected unavailable states stay JSON/stdout.
 
 Success returns JSON-only stdout with:

@@ -1,10 +1,12 @@
 # darktable module capability catalog
 
-`src/contracts/darktable-module-capability-catalog.ts` is the source of truth for the darktable module backlog in this repo.
+`src/contracts/darktable-module-capability-catalog.ts` is the source of truth for audited darktable module coverage and the remaining editable backlog in this repo.
+
+The catalog is paired with `src/contracts/darktable-iop-audited-inventory.ts`, which locks the audited `darktable/src/iop/*.c` inventory used by tests and planning. The catalog also includes a deliberate `lens` entry from `darktable/src/iop/lens.cc` so the native capability registry stays fully catalog-backed.
 
 Use it when a PR needs to answer any of these questions:
 
-- Which audited `darktable/src/iop/*.c` modules are already covered, partially covered, planned, fork-required, legacy, or intentionally excluded?
+- Which audited darktable modules are already covered, partially covered, planned, fork-required, legacy, or intentionally excluded?
 - Which current recipe adjustments or darktable-native capability ids map to a given module?
 - Whether a module has preview support, live support, or only backlog status.
 - Whether a source file is helper/internal/non-user-editable and therefore excluded on purpose.
@@ -30,5 +32,11 @@ Workflow for future PRs:
 2. If darktable adds or removes `src/iop/*.c` files in the audited snapshot, update `src/contracts/darktable-iop-audited-inventory.ts` in the same PR.
 3. Keep `src/contracts/adjustment-capability.ts` and `src/contracts/darktable-native-capability.ts` aligned with the cataloged module ids.
 4. If a local sibling `../darktable` checkout is present, run `timeout 15s bun run scripts/validate-darktable-iop-audited-inventory.ts` before sending the PR.
+
+Usage notes:
+
+- Treat `bun run cli -- capabilities` as the operator-facing support summary.
+- Treat the catalog as the planning and implementation source of truth when deciding which PR slice comes next.
+- A module marked `partial` already has some truthful support merged, but it is not done until the remaining parameter backlog is closed and the relevant PR is merged.
 
 The checked-in tests intentionally validate against the audited inventory instead of a sibling checkout so CI stays hermetic.
