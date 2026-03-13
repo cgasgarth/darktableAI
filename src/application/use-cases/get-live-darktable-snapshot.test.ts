@@ -26,6 +26,9 @@ describe("GetLiveDarktableSnapshot", (): void => {
       applyModuleInstanceBlend: () => {
         throw new Error("Unexpected call.");
       },
+      applyModuleInstanceMask: () => {
+        throw new Error("Unexpected call.");
+      },
       applyModuleInstanceAction: () => {
         throw new Error("Unexpected call.");
       }

@@ -46,6 +46,10 @@ export class StrictCliInvocationParser implements CliInvocationParser {
       return this.parseLiveSetModuleBlend(rest);
     }
 
+    if (command === "live-module-mask-action") {
+      return this.parseLiveModuleMaskAction(rest);
+    }
+
     if (command === "live-module-instance-action") {
       return this.parseLiveModuleInstanceAction(rest);
     }
@@ -146,6 +150,39 @@ export class StrictCliInvocationParser implements CliInvocationParser {
       ...(blendMode === undefined ? {} : { blendMode }),
       ...(reverseOrder === undefined ? {} : { reverseOrder })
     };
+  }
+
+  private parseLiveModuleMaskAction(argv: ReadonlyArray<string>): CliInvocation {
+    const instanceKey = this.readRequiredOption(argv, "--instance-key");
+    const action = this.readRequiredOption(argv, "--action");
+
+    if (action === "clear-mask") {
+      const sourceInstanceKey = this.readOptionalOption(argv, "--source-instance-key");
+      if (sourceInstanceKey !== undefined) {
+        throw new Error(
+          "Option '--source-instance-key' is only supported with '--action reuse-same-shapes'."
+        );
+      }
+
+      return {
+        kind: "live-module-mask-action",
+        instanceKey,
+        action
+      };
+    }
+
+    if (action === "reuse-same-shapes") {
+      return {
+        kind: "live-module-mask-action",
+        instanceKey,
+        action,
+        sourceInstanceKey: this.readRequiredOption(argv, "--source-instance-key")
+      };
+    }
+
+    throw new Error(
+      "Option '--action' for 'live-module-mask-action' must be 'clear-mask' or 'reuse-same-shapes'."
+    );
   }
 
   private parseLiveModuleInstanceAction(argv: ReadonlyArray<string>): CliInvocation {

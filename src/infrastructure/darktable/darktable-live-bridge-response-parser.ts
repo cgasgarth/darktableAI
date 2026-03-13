@@ -12,7 +12,13 @@ import type {
   LiveDarktableUnavailableReason,
   LiveDarktableUnavailableState
 } from "../../application/models/live-darktable";
+import type {
+  LiveDarktableAvailableModuleMaskState,
+  LiveDarktableModuleMaskUnavailableReason,
+  LiveDarktableUnavailableModuleMaskState
+} from "../../application/models/live-darktable-module-mask";
 import { DarktableLiveBridgeBlendParser } from "./darktable-live-bridge-blend-parser";
+import { DarktableLiveBridgeModuleMaskParser } from "./darktable-live-bridge-module-mask-parser";
 import { DarktableLiveBridgeModuleActionParser } from "./darktable-live-bridge-module-action-parser";
 import { DarktableLiveBridgeSnapshotParser } from "./darktable-live-bridge-snapshot-parser";
 
@@ -26,13 +32,15 @@ interface LiveBridgePayload {
   readonly snapshot?: unknown;
   readonly moduleAction?: unknown;
   readonly moduleBlend?: unknown;
+  readonly moduleMask?: unknown;
 }
 
 export class DarktableLiveBridgeResponseParser {
   public constructor(
     private readonly snapshotParser: DarktableLiveBridgeSnapshotParser = new DarktableLiveBridgeSnapshotParser(),
     private readonly moduleActionParser: DarktableLiveBridgeModuleActionParser = new DarktableLiveBridgeModuleActionParser(),
-    private readonly blendParser: DarktableLiveBridgeBlendParser = new DarktableLiveBridgeBlendParser()
+    private readonly blendParser: DarktableLiveBridgeBlendParser = new DarktableLiveBridgeBlendParser(),
+    private readonly moduleMaskParser: DarktableLiveBridgeModuleMaskParser = new DarktableLiveBridgeModuleMaskParser()
   ) {}
 
   public parseGetSession(
@@ -123,6 +131,37 @@ export class DarktableLiveBridgeResponseParser {
       session: this.readSession(parsed.session),
       activeImage: this.readActiveImage(parsed.activeImage),
       moduleBlend: this.blendParser.parseMutation(parsed.moduleBlend),
+      snapshot: this.snapshotParser.parse(parsed.snapshot)
+    };
+  }
+
+  public parseApplyModuleInstanceMask(
+    stdout: string,
+    diagnostics: LiveDarktableCommandDiagnostics
+  ): LiveDarktableAvailableModuleMaskState | LiveDarktableUnavailableModuleMaskState {
+    const parsed = this.parsePayload(stdout);
+    const bridgeVersion = this.readBridgeVersion(parsed.bridgeVersion);
+    const status = this.readStatus(parsed.status);
+
+    if (status === "unavailable") {
+      return {
+        bridgeVersion,
+        status,
+        diagnostics,
+        ...(parsed.session === undefined ? {} : { session: this.readSession(parsed.session) }),
+        ...(parsed.activeImage === undefined ? {} : { activeImage: this.readActiveImage(parsed.activeImage) }),
+        moduleMask: this.moduleMaskParser.parseUnavailable(parsed.moduleMask),
+        ...(parsed.reason === undefined ? {} : { reason: this.readMaskReason(parsed.reason) })
+      };
+    }
+
+    return {
+      bridgeVersion,
+      status,
+      diagnostics,
+      session: this.readSession(parsed.session),
+      activeImage: this.readActiveImage(parsed.activeImage),
+      moduleMask: this.moduleMaskParser.parse(parsed.moduleMask),
       snapshot: this.snapshotParser.parse(parsed.snapshot)
     };
   }
@@ -223,6 +262,26 @@ export class DarktableLiveBridgeResponseParser {
     ) {
       throw new Error(
         "darktable-live-bridge field 'reason' must be 'unsupported-view', 'no-active-image', 'unknown-instance-key', 'unsupported-module-blend', 'unsupported-module-blend-mode', 'module-blend-failed', or 'snapshot-unavailable' for module blend responses."
+      );
+    }
+
+    return value;
+  }
+
+  private readMaskReason(value: unknown): LiveDarktableModuleMaskUnavailableReason {
+    if (
+      value !== "unsupported-view" &&
+      value !== "no-active-image" &&
+      value !== "unknown-instance-key" &&
+      value !== "unknown-source-instance-key" &&
+      value !== "unsupported-module-mask" &&
+      value !== "source-module-mask-unavailable" &&
+      value !== "target-module-mask-not-clear" &&
+      value !== "module-mask-failed" &&
+      value !== "snapshot-unavailable"
+    ) {
+      throw new Error(
+        "darktable-live-bridge field 'reason' must be 'unsupported-view', 'no-active-image', 'unknown-instance-key', 'unknown-source-instance-key', 'unsupported-module-mask', 'source-module-mask-unavailable', 'target-module-mask-not-clear', 'module-mask-failed', or 'snapshot-unavailable' for module mask responses."
       );
     }
 

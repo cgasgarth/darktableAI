@@ -1,5 +1,6 @@
 import { StrictDevelopRecipeValidator } from "../contracts/develop-recipe";
 import { ApplyLiveDarktableModuleInstanceAction } from "../application/use-cases/apply-live-darktable-module-instance-action";
+import { ApplyLiveDarktableModuleMaskAction } from "../application/use-cases/apply-live-darktable-module-mask-action";
 import { CreatePreviewRender } from "../application/use-cases/create-preview-render";
 import { GetLiveDarktableSnapshot } from "../application/use-cases/get-live-darktable-snapshot";
 import { GetLiveDarktableSession } from "../application/use-cases/get-live-darktable-session";
@@ -9,6 +10,7 @@ import { SetLiveDarktableModuleBlend } from "../application/use-cases/set-live-d
 import { RunDarktableSmokeCommand } from "../interfaces/cli/run-darktable-smoke-command";
 import { RunAdjustmentCapabilitiesCommand } from "../interfaces/cli/run-adjustment-capabilities-command";
 import { RunLiveModuleInstanceActionCommand } from "../interfaces/cli/run-live-module-instance-action-command";
+import { RunLiveModuleMaskActionCommand } from "../interfaces/cli/run-live-module-mask-action-command";
 import { RunLiveSetModuleBlendCommand } from "../interfaces/cli/run-live-set-module-blend-command";
 import { RunLiveSessionInfoCommand } from "../interfaces/cli/run-live-session-info-command";
 import { RunLiveSessionSnapshotCommand } from "../interfaces/cli/run-live-session-snapshot-command";
@@ -36,6 +38,7 @@ interface ApplicationServiceContainer {
   readonly runLiveSessionSnapshotCommand: RunLiveSessionSnapshotCommand;
   readonly runLiveSetExposureCommand: RunLiveSetExposureCommand;
   readonly runLiveSetModuleBlendCommand: RunLiveSetModuleBlendCommand;
+  readonly runLiveModuleMaskActionCommand: RunLiveModuleMaskActionCommand;
   readonly runLiveModuleInstanceActionCommand: RunLiveModuleInstanceActionCommand;
 }
 
@@ -90,6 +93,7 @@ export const createApplicationServices = (): ApplicationServiceContainer => {
   const getLiveDarktableSession = new GetLiveDarktableSession(liveBridge);
   const getLiveDarktableSnapshot = new GetLiveDarktableSnapshot(liveBridge);
   const applyLiveDarktableModuleInstanceAction = new ApplyLiveDarktableModuleInstanceAction(liveBridge);
+  const applyLiveDarktableModuleMaskAction = new ApplyLiveDarktableModuleMaskAction(liveBridge);
   const setLiveDarktableExposure = new SetLiveDarktableExposure(
     liveBridge,
     systemClock,
@@ -110,6 +114,9 @@ export const createApplicationServices = (): ApplicationServiceContainer => {
   const runLiveSessionSnapshotCommand = new RunLiveSessionSnapshotCommand(getLiveDarktableSnapshot);
   const runLiveSetExposureCommand = new RunLiveSetExposureCommand(setLiveDarktableExposure);
   const runLiveSetModuleBlendCommand = new RunLiveSetModuleBlendCommand(setLiveDarktableModuleBlend);
+  const runLiveModuleMaskActionCommand = new RunLiveModuleMaskActionCommand(
+    applyLiveDarktableModuleMaskAction
+  );
   const runLiveModuleInstanceActionCommand = new RunLiveModuleInstanceActionCommand(
     applyLiveDarktableModuleInstanceAction
   );
@@ -122,6 +129,7 @@ export const createApplicationServices = (): ApplicationServiceContainer => {
     runLiveSessionSnapshotCommand,
     runLiveSetExposureCommand,
     runLiveSetModuleBlendCommand,
+    runLiveModuleMaskActionCommand,
     runLiveModuleInstanceActionCommand
   };
 };

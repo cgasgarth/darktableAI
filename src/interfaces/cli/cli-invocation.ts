@@ -7,6 +7,7 @@ export type CliInvocation =
   | LiveSessionSnapshotCliInvocation
   | LiveSetExposureCliInvocation
   | LiveSetModuleBlendCliInvocation
+  | LiveModuleMaskActionCliInvocation
   | LiveModuleInstanceActionCliInvocation;
 
 export interface HelpCliInvocation {
@@ -73,3 +74,16 @@ export interface LiveSetModuleBlendCliInvocation {
   readonly blendMode?: string;
   readonly reverseOrder?: boolean;
 }
+
+export type LiveModuleMaskActionCliInvocation =
+  | {
+      readonly kind: "live-module-mask-action";
+      readonly instanceKey: string;
+      readonly action: "clear-mask";
+    }
+  | {
+      readonly kind: "live-module-mask-action";
+      readonly instanceKey: string;
+      readonly action: "reuse-same-shapes";
+      readonly sourceInstanceKey: string;
+    };

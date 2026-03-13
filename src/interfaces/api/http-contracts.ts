@@ -17,6 +17,11 @@ import type {
   LiveDarktableUnavailableReason,
   LiveDarktableSetExposureWaitOutcome
 } from "../../application/models/live-darktable";
+import type {
+  LiveDarktableModuleMaskResult,
+  LiveDarktableModuleMaskUnavailableReason,
+  LiveDarktableUnavailableModuleMaskResult
+} from "../../application/models/live-darktable-module-mask";
 
 export interface PreviewRenderRequest {
   readonly requestId: string;
@@ -125,4 +130,13 @@ export interface LiveModuleBlendResponse extends LiveResponseCommon {
   readonly activeImage?: LiveDarktableActiveImage;
   readonly snapshot?: LiveDarktableSnapshotState;
   readonly moduleBlend?: LiveDarktableModuleBlendResult | LiveDarktableUnavailableModuleBlendResult;
+}
+
+export interface LiveModuleMaskResponse extends LiveResponseCommon {
+  readonly diagnostics: ReadonlyArray<LiveDarktableCommandDiagnostics>;
+  readonly reason?: LiveDarktableModuleMaskUnavailableReason;
+  readonly session?: LiveDarktableSessionState;
+  readonly activeImage?: LiveDarktableActiveImage;
+  readonly snapshot?: LiveDarktableSnapshotState;
+  readonly moduleMask?: LiveDarktableModuleMaskResult | LiveDarktableUnavailableModuleMaskResult;
 }
