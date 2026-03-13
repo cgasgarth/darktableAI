@@ -220,6 +220,10 @@ class StubGateway {
   public setExposure(): Promise<LiveDarktableExposureMutation> {
     return Promise.resolve(this.state.mutation);
   }
+
+  public applyModuleInstanceAction(): Promise<never> {
+    throw new Error("Unexpected applyModuleInstanceAction call.");
+  }
 }
 
 class StubClock {

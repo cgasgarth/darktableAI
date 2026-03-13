@@ -22,6 +22,9 @@ describe("GetLiveDarktableSnapshot", (): void => {
         }),
       setExposure: () => {
         throw new Error("Unexpected call.");
+      },
+      applyModuleInstanceAction: () => {
+        throw new Error("Unexpected call.");
       }
     });
 

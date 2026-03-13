@@ -1,12 +1,17 @@
 import type {
   LiveDarktableActiveImage,
   LiveDarktableAvailableExposureState,
+  LiveDarktableAvailableModuleInstanceActionState,
   LiveDarktableAvailableSessionState,
   LiveDarktableAvailableSnapshotState,
   LiveDarktableCommandDiagnostics,
   LiveDarktableExposureChange,
   LiveDarktableExposureState,
+  LiveDarktableModuleInstanceAction,
+  LiveDarktableModuleInstanceActionResult,
+  LiveDarktableUnavailableModuleInstanceActionResult,
   LiveDarktableSessionState,
+  LiveDarktableUnavailableReason,
   LiveDarktableUnavailableState
 } from "../../application/models/live-darktable";
 import { DarktableLiveBridgeSnapshotParser } from "./darktable-live-bridge-snapshot-parser";
@@ -19,6 +24,7 @@ interface LiveBridgePayload {
   readonly activeImage?: unknown;
   readonly exposure?: unknown;
   readonly snapshot?: unknown;
+  readonly moduleAction?: unknown;
 }
 
 export class DarktableLiveBridgeResponseParser {
@@ -81,6 +87,25 @@ export class DarktableLiveBridgeResponseParser {
     };
   }
 
+  public parseApplyModuleInstanceAction(
+    stdout: string,
+    diagnostics: LiveDarktableCommandDiagnostics
+  ): LiveDarktableAvailableModuleInstanceActionState | LiveDarktableUnavailableState {
+    const parsed = this.parsePayload(stdout);
+    const common = this.readCommonFields(parsed, diagnostics);
+
+    if (common.status === "unavailable") {
+      return common;
+    }
+
+    return {
+      ...common,
+      activeImage: this.readActiveImage(parsed.activeImage),
+      moduleAction: this.readModuleAction(parsed.moduleAction),
+      snapshot: this.snapshotParser.parse(parsed.snapshot)
+    };
+  }
+
   private parsePayload(stdout: string): LiveBridgePayload {
     try {
       return JSON.parse(stdout) as LiveBridgePayload;
@@ -97,6 +122,7 @@ export class DarktableLiveBridgeResponseParser {
     | LiveDarktableAvailableSessionState
     | LiveDarktableAvailableExposureState
     | LiveDarktableAvailableSnapshotState
+    | LiveDarktableAvailableModuleInstanceActionState
     | LiveDarktableUnavailableState {
     const bridgeVersion = this.readBridgeVersion(payload.bridgeVersion);
     const status = this.readStatus(payload.status);
@@ -107,6 +133,10 @@ export class DarktableLiveBridgeResponseParser {
         status,
         diagnostics,
         ...(payload.session === undefined ? {} : { session: this.readSession(payload.session) }),
+        ...(payload.activeImage === undefined ? {} : { activeImage: this.readActiveImage(payload.activeImage) }),
+        ...(payload.moduleAction === undefined
+          ? {}
+          : { moduleAction: this.readUnavailableModuleAction(payload.moduleAction) }),
         ...(payload.reason === undefined ? {} : { reason: this.readReason(payload.reason) })
       };
     }
@@ -135,10 +165,18 @@ export class DarktableLiveBridgeResponseParser {
     return value;
   }
 
-  private readReason(value: unknown): "unsupported-view" | "no-active-image" {
-    if (value !== "unsupported-view" && value !== "no-active-image") {
+  private readReason(value: unknown): LiveDarktableUnavailableReason {
+    if (
+      value !== "unsupported-view" &&
+      value !== "no-active-image" &&
+      value !== "unknown-instance-key" &&
+      value !== "unsupported-module-action" &&
+      value !== "unsupported-module-state" &&
+      value !== "module-action-failed" &&
+      value !== "snapshot-unavailable"
+    ) {
       throw new Error(
-        "darktable-live-bridge field 'reason' must be 'unsupported-view' or 'no-active-image'."
+        "darktable-live-bridge field 'reason' must be 'unsupported-view', 'no-active-image', 'unknown-instance-key', 'unsupported-module-action', 'unsupported-module-state', 'module-action-failed', or 'snapshot-unavailable'."
       );
     }
 
@@ -189,12 +227,87 @@ export class DarktableLiveBridgeResponseParser {
     };
   }
 
+  private readModuleAction(value: unknown): LiveDarktableModuleInstanceActionResult {
+    const record = this.readRecord(value, "moduleAction");
+
+    return {
+      targetInstanceKey: this.readString(record["targetInstanceKey"], "moduleAction.targetInstanceKey"),
+      requestedEnabled: this.readBoolean(record["requestedEnabled"], "moduleAction.requestedEnabled"),
+      moduleOp: this.readString(record["moduleOp"], "moduleAction.moduleOp"),
+      iopOrder: this.readInteger(record["iopOrder"], "moduleAction.iopOrder"),
+      multiPriority: this.readInteger(record["multiPriority"], "moduleAction.multiPriority"),
+      multiName: this.readStringValue(record["multiName"], "moduleAction.multiName"),
+      action: this.readModuleInstanceAction(record["action"], "moduleAction.action"),
+      previousEnabled: this.readBoolean(record["previousEnabled"], "moduleAction.previousEnabled"),
+      currentEnabled: this.readBoolean(record["currentEnabled"], "moduleAction.currentEnabled"),
+      changed: this.readBoolean(record["changed"], "moduleAction.changed"),
+      historyBefore: this.readInteger(record["historyBefore"], "moduleAction.historyBefore"),
+      historyAfter: this.readInteger(record["historyAfter"], "moduleAction.historyAfter"),
+      requestedHistoryEnd: this.readInteger(record["requestedHistoryEnd"], "moduleAction.requestedHistoryEnd")
+    };
+  }
+
+  private readUnavailableModuleAction(value: unknown): LiveDarktableUnavailableModuleInstanceActionResult {
+    const record = this.readRecord(value, "moduleAction");
+
+    return {
+      targetInstanceKey: this.readString(record["targetInstanceKey"], "moduleAction.targetInstanceKey"),
+      action: this.readString(record["action"], "moduleAction.action"),
+      ...(record["requestedEnabled"] === undefined
+        ? {}
+        : { requestedEnabled: this.readBoolean(record["requestedEnabled"], "moduleAction.requestedEnabled") }),
+      ...(record["moduleOp"] === undefined
+        ? {}
+        : { moduleOp: this.readString(record["moduleOp"], "moduleAction.moduleOp") }),
+      ...(record["iopOrder"] === undefined
+        ? {}
+        : { iopOrder: this.readInteger(record["iopOrder"], "moduleAction.iopOrder") }),
+      ...(record["multiPriority"] === undefined
+        ? {}
+        : { multiPriority: this.readInteger(record["multiPriority"], "moduleAction.multiPriority") }),
+      ...(record["multiName"] === undefined
+        ? {}
+        : { multiName: this.readStringValue(record["multiName"], "moduleAction.multiName") }),
+      ...(record["previousEnabled"] === undefined
+        ? {}
+        : { previousEnabled: this.readBoolean(record["previousEnabled"], "moduleAction.previousEnabled") }),
+      ...(record["currentEnabled"] === undefined
+        ? {}
+        : { currentEnabled: this.readBoolean(record["currentEnabled"], "moduleAction.currentEnabled") }),
+      ...(record["changed"] === undefined
+        ? {}
+        : { changed: this.readBoolean(record["changed"], "moduleAction.changed") }),
+      ...(record["historyBefore"] === undefined
+        ? {}
+        : { historyBefore: this.readInteger(record["historyBefore"], "moduleAction.historyBefore") }),
+      ...(record["historyAfter"] === undefined
+        ? {}
+        : { historyAfter: this.readInteger(record["historyAfter"], "moduleAction.historyAfter") }),
+      ...(record["requestedHistoryEnd"] === undefined
+        ? {}
+        : {
+            requestedHistoryEnd: this.readInteger(
+              record["requestedHistoryEnd"],
+              "moduleAction.requestedHistoryEnd"
+            )
+          })
+    };
+  }
+
   private readRecord(value: unknown, label: string): Record<string, unknown> {
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
       throw new Error(`darktable-live-bridge field '${label}' must be an object.`);
     }
 
     return value as Record<string, unknown>;
+  }
+
+  private readBoolean(value: unknown, label: string): boolean {
+    if (typeof value !== "boolean") {
+      throw new Error(`darktable-live-bridge field '${label}' must be a boolean.`);
+    }
+
+    return value;
   }
 
   private readInteger(value: unknown, label: string): number {
@@ -228,6 +341,14 @@ export class DarktableLiveBridgeResponseParser {
   private readStringValue(value: unknown, label: string): string {
     if (typeof value !== "string") {
       throw new Error(`darktable-live-bridge field '${label}' must be a string.`);
+    }
+
+    return value;
+  }
+
+  private readModuleInstanceAction(value: unknown, label: string): LiveDarktableModuleInstanceAction {
+    if (value !== "enable" && value !== "disable") {
+      throw new Error(`darktable-live-bridge field '${label}' must be 'enable' or 'disable'.`);
     }
 
     return value;

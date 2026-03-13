@@ -42,6 +42,10 @@ export class StrictCliInvocationParser implements CliInvocationParser {
       return this.parseLiveSetExposure(rest);
     }
 
+    if (command === "live-module-instance-action") {
+      return this.parseLiveModuleInstanceAction(rest);
+    }
+
     throw new Error(`Unknown command '${command}'. Run 'bun run cli -- help' for usage.`);
   }
 
@@ -116,6 +120,21 @@ export class StrictCliInvocationParser implements CliInvocationParser {
         timeoutMilliseconds,
         pollIntervalMilliseconds
       }
+    };
+  }
+
+  private parseLiveModuleInstanceAction(argv: ReadonlyArray<string>): CliInvocation {
+    const instanceKey = this.readRequiredOption(argv, "--instance-key");
+    const action = this.readRequiredOption(argv, "--action");
+
+    if (action !== "enable" && action !== "disable") {
+      throw new Error("Option '--action' must be 'enable' or 'disable'.");
+    }
+
+    return {
+      kind: "live-module-instance-action",
+      instanceKey,
+      action
     };
   }
 

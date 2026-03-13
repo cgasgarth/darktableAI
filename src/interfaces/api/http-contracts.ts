@@ -8,8 +8,11 @@ import type {
   LiveDarktableCommandDiagnostics,
   LiveDarktableExposureChange,
   LiveDarktableExposureState,
+  LiveDarktableModuleInstanceActionResult,
   LiveDarktableSnapshotState,
   LiveDarktableSessionState,
+  LiveDarktableUnavailableModuleInstanceActionResult,
+  LiveDarktableUnavailableReason,
   LiveDarktableSetExposureWaitOutcome
 } from "../../application/models/live-darktable";
 
@@ -78,7 +81,7 @@ interface LiveResponseCommon {
 
 export interface LiveSessionInfoResponse extends LiveResponseCommon {
   readonly diagnostics: LiveDarktableCommandDiagnostics;
-  readonly reason?: "unsupported-view" | "no-active-image";
+  readonly reason?: LiveDarktableUnavailableReason;
   readonly session?: LiveDarktableSessionState;
   readonly activeImage?: LiveDarktableActiveImage;
   readonly exposure?: LiveDarktableExposureState;
@@ -86,7 +89,7 @@ export interface LiveSessionInfoResponse extends LiveResponseCommon {
 
 export interface LiveSessionSnapshotResponse extends LiveResponseCommon {
   readonly diagnostics: LiveDarktableCommandDiagnostics;
-  readonly reason?: "unsupported-view" | "no-active-image";
+  readonly reason?: LiveDarktableUnavailableReason;
   readonly session?: LiveDarktableSessionState;
   readonly activeImage?: LiveDarktableActiveImage;
   readonly snapshot?: LiveDarktableSnapshotState;
@@ -95,9 +98,20 @@ export interface LiveSessionSnapshotResponse extends LiveResponseCommon {
 export interface LiveSetExposureResponse extends LiveResponseCommon {
   readonly diagnostics: ReadonlyArray<LiveDarktableCommandDiagnostics>;
   readonly wait: LiveDarktableSetExposureWaitOutcome;
-  readonly reason?: "unsupported-view" | "no-active-image";
+  readonly reason?: LiveDarktableUnavailableReason;
   readonly session?: LiveDarktableSessionState;
   readonly activeImage?: LiveDarktableActiveImage;
   readonly exposure?: LiveDarktableExposureState;
   readonly setExposure?: LiveDarktableExposureChange;
+}
+
+export interface LiveModuleInstanceActionResponse extends LiveResponseCommon {
+  readonly diagnostics: ReadonlyArray<LiveDarktableCommandDiagnostics>;
+  readonly reason?: LiveDarktableUnavailableReason;
+  readonly session?: LiveDarktableSessionState;
+  readonly activeImage?: LiveDarktableActiveImage;
+  readonly snapshot?: LiveDarktableSnapshotState;
+  readonly moduleAction?:
+    | LiveDarktableModuleInstanceActionResult
+    | LiveDarktableUnavailableModuleInstanceActionResult;
 }
