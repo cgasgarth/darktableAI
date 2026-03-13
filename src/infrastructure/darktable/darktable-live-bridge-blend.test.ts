@@ -85,6 +85,85 @@ describe("DarktableLiveBridge blend", (): void => {
       reverseOrder: false
     });
   });
+
+  test("invokes apply-module-instance-blend with blend mode and reverse order JSON", async (): Promise<void> => {
+    const processRunner = new StubProcessRunner([
+      {
+        exitCode: 0,
+        stdout: JSON.stringify({
+          bridgeVersion: 1,
+          status: "ok",
+          session: {
+            view: "darkroom",
+            renderSequence: 24,
+            historyChangeSequence: 11,
+            imageLoadSequence: 2
+          },
+          activeImage: {
+            imageId: 7,
+            directoryPath: "/photos",
+            fileName: "frame.ARW",
+            sourceAssetPath: "/photos/frame.ARW"
+          },
+          moduleBlend: {
+            targetInstanceKey: "colorbalancergb#7#1#",
+            moduleOp: "colorbalancergb",
+            iopOrder: 18,
+            multiPriority: 1,
+            multiName: "mask",
+            previousBlendMode: "normal",
+            requestedBlendMode: "multiply",
+            currentBlendMode: "multiply",
+            previousReverseOrder: false,
+            requestedReverseOrder: true,
+            currentReverseOrder: true,
+            historyBefore: 3,
+            historyAfter: 4,
+            requestedHistoryEnd: 4
+          },
+          snapshot: createSnapshot(75)
+        }),
+        stderr: ""
+      }
+    ]);
+    const bridge = new DarktableLiveBridge(
+      { binaryPath: "/opt/darktable/build/bin/darktable-live-bridge" },
+      processRunner,
+      undefined,
+      createNowMilliseconds([6000, 6009])
+    );
+
+    const result = await bridge.applyModuleInstanceBlend({
+      instanceKey: "colorbalancergb#7#1#",
+      blendMode: "multiply",
+      reverseOrder: true
+    });
+
+    expect(processRunner.commands).toEqual([
+      [
+        "/opt/darktable/build/bin/darktable-live-bridge",
+        "apply-module-instance-blend",
+        "colorbalancergb#7#1#",
+        '{"blendMode":"multiply","reverseOrder":true}'
+      ]
+    ]);
+    expect(result.moduleBlend).toEqual({
+      targetInstanceKey: "colorbalancergb#7#1#",
+      moduleOp: "colorbalancergb",
+      iopOrder: 18,
+      multiPriority: 1,
+      multiName: "mask",
+      previousBlendMode: "normal",
+      requestedBlendMode: "multiply",
+      currentBlendMode: "multiply",
+      previousReverseOrder: false,
+      requestedReverseOrder: true,
+      currentReverseOrder: true,
+      historyBefore: 3,
+      historyAfter: 4,
+      requestedHistoryEnd: 4
+    });
+  });
 });
 
 class StubProcessRunner {

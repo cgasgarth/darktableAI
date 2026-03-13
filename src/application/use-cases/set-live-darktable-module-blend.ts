@@ -6,7 +6,9 @@ import type {
 
 export interface SetLiveDarktableModuleBlendRequest {
   readonly instanceKey: string;
-  readonly opacity: number;
+  readonly opacity?: number;
+  readonly blendMode?: string;
+  readonly reverseOrder?: boolean;
 }
 
 export class SetLiveDarktableModuleBlend {
@@ -15,9 +17,21 @@ export class SetLiveDarktableModuleBlend {
   public async execute(
     request: SetLiveDarktableModuleBlendRequest
   ): Promise<LiveDarktableSetModuleBlendResult> {
+    if (
+      request.opacity === undefined &&
+      request.blendMode === undefined &&
+      request.reverseOrder === undefined
+    ) {
+      throw new Error(
+        "SetLiveDarktableModuleBlend requires at least one of opacity, blendMode, or reverseOrder."
+      );
+    }
+
     const mutationRequest: GatewaySetLiveDarktableModuleBlendRequest = {
       instanceKey: request.instanceKey,
-      opacity: request.opacity
+      ...(request.opacity === undefined ? {} : { opacity: request.opacity }),
+      ...(request.blendMode === undefined ? {} : { blendMode: request.blendMode }),
+      ...(request.reverseOrder === undefined ? {} : { reverseOrder: request.reverseOrder })
     };
     const mutation = await this.gateway.applyModuleInstanceBlend(mutationRequest);
 

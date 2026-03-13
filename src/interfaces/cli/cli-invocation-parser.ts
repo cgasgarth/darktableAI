@@ -129,12 +129,22 @@ export class StrictCliInvocationParser implements CliInvocationParser {
 
   private parseLiveSetModuleBlend(argv: ReadonlyArray<string>): CliInvocation {
     const instanceKey = this.readRequiredOption(argv, "--instance-key");
-    const opacity = this.readNumberOption(argv, "--opacity");
+    const opacity = this.readOptionalNumberOption(argv, "--opacity");
+    const blendMode = this.readOptionalOption(argv, "--blend-mode");
+    const reverseOrder = this.readOptionalBooleanOption(argv, "--reverse-order");
+
+    if (opacity === undefined && blendMode === undefined && reverseOrder === undefined) {
+      throw new Error(
+        "Command 'live-set-module-blend' requires at least one of '--opacity', '--blend-mode', or '--reverse-order'."
+      );
+    }
 
     return {
       kind: "live-set-module-blend",
       instanceKey,
-      opacity
+      ...(opacity === undefined ? {} : { opacity }),
+      ...(blendMode === undefined ? {} : { blendMode }),
+      ...(reverseOrder === undefined ? {} : { reverseOrder })
     };
   }
 
@@ -218,6 +228,16 @@ export class StrictCliInvocationParser implements CliInvocationParser {
     return this.parseFiniteNumber(optionValue, optionName);
   }
 
+  private readOptionalNumberOption(argv: ReadonlyArray<string>, optionName: string): number | undefined {
+    const optionValue = this.readOptionalOption(argv, optionName);
+
+    if (optionValue === undefined) {
+      return undefined;
+    }
+
+    return this.parseFiniteNumber(optionValue, optionName);
+  }
+
   private readOptionalIntegerOption(
     argv: ReadonlyArray<string>,
     optionName: string
@@ -245,6 +265,23 @@ export class StrictCliInvocationParser implements CliInvocationParser {
     }
 
     return parsed;
+  }
+
+  private readOptionalBooleanOption(
+    argv: ReadonlyArray<string>,
+    optionName: string
+  ): boolean | undefined {
+    const optionValue = this.readOptionalOption(argv, optionName);
+
+    if (optionValue === undefined) {
+      return undefined;
+    }
+
+    if (optionValue !== "true" && optionValue !== "false") {
+      throw new Error(`Option '${optionName}' must be 'true' or 'false'.`);
+    }
+
+    return optionValue === "true";
   }
 
   private isHelpFlag(value: string): boolean {

@@ -35,9 +35,60 @@ export class DarktableLiveBridgeBlendParser {
       iopOrder: this.readInteger(record["iopOrder"], "moduleBlend.iopOrder"),
       multiPriority: this.readInteger(record["multiPriority"], "moduleBlend.multiPriority"),
       multiName: this.readStringValue(record["multiName"], "moduleBlend.multiName"),
-      previousOpacity: this.readNumber(record["previousOpacity"], "moduleBlend.previousOpacity"),
-      requestedOpacity: this.readNumber(record["requestedOpacity"], "moduleBlend.requestedOpacity"),
-      currentOpacity: this.readNumber(record["currentOpacity"], "moduleBlend.currentOpacity"),
+      ...(record["previousOpacity"] === undefined
+        ? {}
+        : { previousOpacity: this.readNumber(record["previousOpacity"], "moduleBlend.previousOpacity") }),
+      ...(record["requestedOpacity"] === undefined
+        ? {}
+        : { requestedOpacity: this.readNumber(record["requestedOpacity"], "moduleBlend.requestedOpacity") }),
+      ...(record["currentOpacity"] === undefined
+        ? {}
+        : { currentOpacity: this.readNumber(record["currentOpacity"], "moduleBlend.currentOpacity") }),
+      ...(record["previousBlendMode"] === undefined
+        ? {}
+        : {
+            previousBlendMode: this.readString(
+              record["previousBlendMode"],
+              "moduleBlend.previousBlendMode"
+            )
+          }),
+      ...(record["requestedBlendMode"] === undefined
+        ? {}
+        : {
+            requestedBlendMode: this.readString(
+              record["requestedBlendMode"],
+              "moduleBlend.requestedBlendMode"
+            )
+          }),
+      ...(record["currentBlendMode"] === undefined
+        ? {}
+        : {
+            currentBlendMode: this.readString(record["currentBlendMode"], "moduleBlend.currentBlendMode")
+          }),
+      ...(record["previousReverseOrder"] === undefined
+        ? {}
+        : {
+            previousReverseOrder: this.readBoolean(
+              record["previousReverseOrder"],
+              "moduleBlend.previousReverseOrder"
+            )
+          }),
+      ...(record["requestedReverseOrder"] === undefined
+        ? {}
+        : {
+            requestedReverseOrder: this.readBoolean(
+              record["requestedReverseOrder"],
+              "moduleBlend.requestedReverseOrder"
+            )
+          }),
+      ...(record["currentReverseOrder"] === undefined
+        ? {}
+        : {
+            currentReverseOrder: this.readBoolean(
+              record["currentReverseOrder"],
+              "moduleBlend.currentReverseOrder"
+            )
+          }),
       historyBefore: this.readInteger(record["historyBefore"], "moduleBlend.historyBefore"),
       historyAfter: this.readInteger(record["historyAfter"], "moduleBlend.historyAfter"),
       requestedHistoryEnd: this.readInteger(record["requestedHistoryEnd"], "moduleBlend.requestedHistoryEnd")
@@ -66,6 +117,51 @@ export class DarktableLiveBridgeBlendParser {
       ...(record["currentOpacity"] === undefined
         ? {}
         : { currentOpacity: this.readNumber(record["currentOpacity"], "moduleBlend.currentOpacity") }),
+      ...(record["previousBlendMode"] === undefined
+        ? {}
+        : {
+            previousBlendMode: this.readString(
+              record["previousBlendMode"],
+              "moduleBlend.previousBlendMode"
+            )
+          }),
+      ...(record["requestedBlendMode"] === undefined
+        ? {}
+        : {
+            requestedBlendMode: this.readString(
+              record["requestedBlendMode"],
+              "moduleBlend.requestedBlendMode"
+            )
+          }),
+      ...(record["currentBlendMode"] === undefined
+        ? {}
+        : {
+            currentBlendMode: this.readString(record["currentBlendMode"], "moduleBlend.currentBlendMode")
+          }),
+      ...(record["previousReverseOrder"] === undefined
+        ? {}
+        : {
+            previousReverseOrder: this.readBoolean(
+              record["previousReverseOrder"],
+              "moduleBlend.previousReverseOrder"
+            )
+          }),
+      ...(record["requestedReverseOrder"] === undefined
+        ? {}
+        : {
+            requestedReverseOrder: this.readBoolean(
+              record["requestedReverseOrder"],
+              "moduleBlend.requestedReverseOrder"
+            )
+          }),
+      ...(record["currentReverseOrder"] === undefined
+        ? {}
+        : {
+            currentReverseOrder: this.readBoolean(
+              record["currentReverseOrder"],
+              "moduleBlend.currentReverseOrder"
+            )
+          }),
       ...(record["historyBefore"] === undefined
         ? {}
         : { historyBefore: this.readInteger(record["historyBefore"], "moduleBlend.historyBefore") }),

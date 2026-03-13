@@ -30,7 +30,9 @@ export type ApplyLiveDarktableModuleInstanceActionRequest =
 
 export interface SetLiveDarktableModuleBlendRequest {
   readonly instanceKey: string;
-  readonly opacity: number;
+  readonly opacity?: number;
+  readonly blendMode?: string;
+  readonly reverseOrder?: boolean;
 }
 
 export interface LiveDarktableSessionGateway {

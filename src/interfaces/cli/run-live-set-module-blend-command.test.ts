@@ -46,6 +46,80 @@ describe("RunLiveSetModuleBlendCommand", (): void => {
     });
   });
 
+  test("forwards blend mode and reverse order fields for successful blend changes", async (): Promise<void> => {
+    const requests: Array<Record<string, unknown>> = [];
+    const command = new RunLiveSetModuleBlendCommand({
+      execute: (request) => {
+        requests.push({ ...request });
+        return Promise.resolve({
+          mutation: createSuccessMutation('{"blendMode":"multiply","reverseOrder":true}', {
+            previousBlendMode: "normal",
+            requestedBlendMode: "multiply",
+            currentBlendMode: "multiply",
+            previousReverseOrder: false,
+            requestedReverseOrder: true,
+            currentReverseOrder: true
+          }),
+          latestSnapshot: createSuccessMutation('{"blendMode":"multiply","reverseOrder":true}', {
+            previousBlendMode: "normal",
+            requestedBlendMode: "multiply",
+            currentBlendMode: "multiply",
+            previousReverseOrder: false,
+            requestedReverseOrder: true,
+            currentReverseOrder: true
+          }),
+          helperCallDiagnostics: [createDiagnostics('{"blendMode":"multiply","reverseOrder":true}')]
+        });
+      }
+    });
+
+    const result = await command.execute({
+      requestId: "request-6",
+      instanceKey: "colorbalancergb#7#1#",
+      blendMode: "multiply",
+      reverseOrder: true
+    });
+
+    expect(requests).toEqual([
+      {
+        instanceKey: "colorbalancergb#7#1#",
+        blendMode: "multiply",
+        reverseOrder: true
+      }
+    ]);
+    expect(result).toEqual({
+      ok: true,
+      output: {
+        requestId: "request-6",
+        bridgeVersion: 1,
+        status: "ok",
+        diagnostics: [createDiagnostics('{"blendMode":"multiply","reverseOrder":true}')],
+        session: createSession(),
+        activeImage: createActiveImage(),
+        snapshot: createSnapshot(75),
+        moduleBlend: {
+          targetInstanceKey: "exposure#0#0#",
+          moduleOp: "exposure",
+          iopOrder: 12,
+          multiPriority: 0,
+          multiName: "0",
+          previousOpacity: 100,
+          requestedOpacity: 75,
+          currentOpacity: 75,
+          previousBlendMode: "normal",
+          requestedBlendMode: "multiply",
+          currentBlendMode: "multiply",
+          previousReverseOrder: false,
+          requestedReverseOrder: true,
+          currentReverseOrder: true,
+          historyBefore: 2,
+          historyAfter: 3,
+          requestedHistoryEnd: 3
+        }
+      }
+    });
+  });
+
   test("returns structured unavailable responses with blend context", async (): Promise<void> => {
     const command = new RunLiveSetModuleBlendCommand({
       execute: () =>
@@ -81,7 +155,10 @@ describe("RunLiveSetModuleBlendCommand", (): void => {
   });
 });
 
-function createSuccessMutation(): {
+function createSuccessMutation(
+  payload = '{"opacity":75}',
+  moduleBlendOverrides: Record<string, unknown> = {}
+): {
   readonly bridgeVersion: 1;
   readonly status: "ok";
   readonly session: ReturnType<typeof createSession>;
@@ -92,9 +169,15 @@ function createSuccessMutation(): {
     readonly iopOrder: 12;
     readonly multiPriority: 0;
     readonly multiName: "0";
-    readonly previousOpacity: 100;
-    readonly requestedOpacity: 75;
-    readonly currentOpacity: 75;
+    readonly previousOpacity?: 100;
+    readonly requestedOpacity?: 75;
+    readonly currentOpacity?: 75;
+    readonly previousBlendMode?: "normal";
+    readonly requestedBlendMode?: "multiply";
+    readonly currentBlendMode?: "multiply";
+    readonly previousReverseOrder?: false;
+    readonly requestedReverseOrder?: true;
+    readonly currentReverseOrder?: true;
     readonly historyBefore: 2;
     readonly historyAfter: 3;
     readonly requestedHistoryEnd: 3;
@@ -116,12 +199,13 @@ function createSuccessMutation(): {
       previousOpacity: 100,
       requestedOpacity: 75,
       currentOpacity: 75,
+      ...moduleBlendOverrides,
       historyBefore: 2,
       historyAfter: 3,
       requestedHistoryEnd: 3
     },
     snapshot: createSnapshot(75),
-    diagnostics: createDiagnostics()
+    diagnostics: createDiagnostics(payload)
   } as const;
 }
 
@@ -285,15 +369,15 @@ function createSnapshot(opacity: number): {
   } as const;
 }
 
-function createDiagnostics(): {
+function createDiagnostics(payload = '{"opacity":75}'): {
   readonly helperBinaryPath: "/helper";
-  readonly commandArguments: readonly ["/helper", "apply-module-instance-blend", "exposure#0#0#", '{"opacity":75}'];
+  readonly commandArguments: readonly ["/helper", "apply-module-instance-blend", "exposure#0#0#", string];
   readonly exitCode: 0;
   readonly elapsedMilliseconds: 6;
 } {
   return {
     helperBinaryPath: "/helper",
-    commandArguments: ["/helper", "apply-module-instance-blend", "exposure#0#0#", '{"opacity":75}'],
+    commandArguments: ["/helper", "apply-module-instance-blend", "exposure#0#0#", payload],
     exitCode: 0,
     elapsedMilliseconds: 6
   } as const;

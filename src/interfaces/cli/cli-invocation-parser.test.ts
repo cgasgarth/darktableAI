@@ -103,6 +103,51 @@ describe("StrictCliInvocationParser", () => {
     });
   });
 
+  test("parses live-set-module-blend with blend mode and reverse order", () => {
+    const parser = new StrictCliInvocationParser();
+
+    expect(
+      parser.parse([
+        "live-set-module-blend",
+        "--instance-key",
+        "colorbalancergb#7#1#",
+        "--blend-mode",
+        "multiply",
+        "--reverse-order",
+        "true"
+      ])
+    ).toEqual({
+      kind: "live-set-module-blend",
+      instanceKey: "colorbalancergb#7#1#",
+      blendMode: "multiply",
+      reverseOrder: true
+    });
+  });
+
+  test("rejects live-set-module-blend calls without requested fields", () => {
+    const parser = new StrictCliInvocationParser();
+
+    expect(() =>
+      parser.parse(["live-set-module-blend", "--instance-key", "exposure#0#0#"])
+    ).toThrow(
+      "Command 'live-set-module-blend' requires at least one of '--opacity', '--blend-mode', or '--reverse-order'."
+    );
+  });
+
+  test("rejects invalid live-set-module-blend reverse-order values", () => {
+    const parser = new StrictCliInvocationParser();
+
+    expect(() =>
+      parser.parse([
+        "live-set-module-blend",
+        "--instance-key",
+        "exposure#0#0#",
+        "--reverse-order",
+        "yes"
+      ])
+    ).toThrow("Option '--reverse-order' must be 'true' or 'false'.");
+  });
+
   test("parses live-module-instance-action with snapshot-style instance keys", () => {
     const parser = new StrictCliInvocationParser();
 

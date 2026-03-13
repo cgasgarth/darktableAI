@@ -53,10 +53,15 @@ export class DarktableLiveBridge implements LiveDarktableSessionGateway {
   public async applyModuleInstanceBlend(
     request: SetLiveDarktableModuleBlendRequest
   ): Promise<LiveDarktableModuleBlendMutation> {
+    const blendPayload = {
+      ...(request.opacity === undefined ? {} : { opacity: request.opacity }),
+      ...(request.blendMode === undefined ? {} : { blendMode: request.blendMode }),
+      ...(request.reverseOrder === undefined ? {} : { reverseOrder: request.reverseOrder })
+    };
     const execution = await this.runBridgeCommand([
       "apply-module-instance-blend",
       request.instanceKey,
-      JSON.stringify({ opacity: request.opacity })
+      JSON.stringify(blendPayload)
     ]);
 
     return this.parser.parseApplyModuleInstanceBlend(execution.stdout, execution.diagnostics);

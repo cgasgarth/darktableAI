@@ -10,7 +10,9 @@ interface SetLiveDarktableModuleBlendPort {
 export interface RunLiveSetModuleBlendCommandInput {
   readonly requestId: string;
   readonly instanceKey: string;
-  readonly opacity: number;
+  readonly opacity?: number;
+  readonly blendMode?: string;
+  readonly reverseOrder?: boolean;
 }
 
 export class RunLiveSetModuleBlendCommand
@@ -26,7 +28,9 @@ export class RunLiveSetModuleBlendCommand
     try {
       const response = await this.setLiveDarktableModuleBlend.execute({
         instanceKey: input.instanceKey,
-        opacity: input.opacity
+        ...(input.opacity === undefined ? {} : { opacity: input.opacity }),
+        ...(input.blendMode === undefined ? {} : { blendMode: input.blendMode }),
+        ...(input.reverseOrder === undefined ? {} : { reverseOrder: input.reverseOrder })
       });
 
       if (response.latestSnapshot.status === "unavailable") {
