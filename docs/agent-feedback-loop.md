@@ -2,7 +2,7 @@
 
 If the editing surface is CLI-first, then yes: we need an explicit feedback loop.
 
-## Recommended MVP loop
+## Recommended Loop
 
 1. Write or update a `DevelopRecipe` JSON file.
 2. Run `bun run cli -- render-preview --recipe-file <path>`.
@@ -12,7 +12,11 @@ If the editing surface is CLI-first, then yes: we need an explicit feedback loop
 6. Periodically run `bun run smoke:preview` to verify the darktable worker path is still healthy.
 7. Treat `diagnostics.commandArguments` and `diagnostics.runtimeState` as the canonical debug trail for each successful run.
 
-For live GUI control work, also run `bun run smoke:live`. That script uses the sibling `darktable-live-bridge` helper, a tmux-hosted darktable session, and a hard 15-second timeout so validation fails fast instead of hanging while still requiring the exposure mutation to complete and read back successfully.
+For live GUI control work, also run these bounded checks:
+- `bun run smoke:live` for successful exposure mutation and lightweight session readback
+- `bun run smoke:live-snapshot` for deep snapshot readback of controls, module stack, and history items
+
+Both scripts use the sibling `darktable-live-bridge` helper, a tmux-hosted darktable session, and hard 15-second timeouts so validation fails fast instead of hanging.
 
 Example preview response:
 
@@ -47,8 +51,9 @@ The loop also supports concurrent `smoke` and `render-preview` runs because each
 ## What already exists
 
 - a `capabilities` command that returns JSON-only recipe-level `adjustments` support plus broader `darktableNative` coverage
+- an audited module catalog in `src/contracts/darktable-module-capability-catalog.ts` that locks the full editable backlog against the current darktable module inventory
 - a stable CLI surface for smoke testing
-- reusable smoke aliases `smoke:preview` and `smoke:live`
+- reusable smoke aliases `smoke:preview`, `smoke:live`, and `smoke:live-snapshot`
 - a single canonical CLI entry point
 - manifest writing for runs
 - deterministic artifact directories under `artifacts/`
@@ -61,24 +66,33 @@ The loop also supports concurrent `smoke` and `render-preview` runs because each
 - JSON-only success payloads that include diagnostics with runtime paths and exact darktable command arguments
 - stock packaged darktable coverage for smoke plus preview recipes that stay off the white-balance helper path
 - a fork-helper requirement for preview recipes that include paired `temperature` + `tint`, because those runs resolve params through `darktable-wb-resolve`
-- a live-control path through `live-session-info` and `live-set-exposure`, backed by the sibling `darktable-live-bridge` helper from the fork
+- a live-control path through `live-session-info`, `live-session-snapshot`, and `live-set-exposure`, backed by the sibling `darktable-live-bridge` helper from the fork
+- a generic live bridge control surface under the fork helper, currently exposing `exposure.exposure` for list/get/set operations while keeping the older exposure-specific command for compatibility
+- truthful live snapshot readback for active image, module stack, control values, and history items
 
 ## What still needs to be implemented
 
 - preview support for additional adjustment kinds beyond the current crop, tone, color, white-balance, and `rgblevels` endpoint surface
 - a truthful generic `whites` / `blacks` mapping if darktable later exposes one that is not just a proxy for `rgblevels`
+- generic live mutation/readback expansion beyond exposure so the audited module catalog can move from partial to full parity
+- module lifecycle, blend, mask, style, and history workflows on top of the current live bridge foundation
 - richer output inspection so the agent can score results instead of only checking process success
-- a stronger iteration loop on top of the current supported preview adjustment surface
 
 ## Recommended operator checks
 
 - Run `bun run cli -- help` to confirm the available commands.
-- Run `bun run cli -- capabilities` before recipe generation when the agent needs the live supported/planned adjustment set.
-- Run `bun run smoke:preview` for the offline preview/worker path and `bun run smoke:live` for the GUI live-control path.
+- Run `bun run cli -- capabilities` before recipe generation when the agent needs the live supported/planned adjustment set, then consult `docs/darktable-module-capability-catalog.md` for the audited per-module backlog.
+- Run `bun run smoke:preview` for the offline preview/worker path, `bun run smoke:live` for live mutation, and `bun run smoke:live-snapshot` for deep readback.
 - Pair `temperature` with `tint` in the same recipe whenever white balance is requested.
 - Use a sibling build of `cgasgarth/darktable` when the recipe includes `temperature` + `tint`; stock packaged darktable is enough for the other currently supported preview adjustments.
 - Use `blackPoint` and `whitePoint` when you need truthful endpoint control; do not substitute unsupported generic `whites` or `blacks`.
 - Use `bun run cli -- render-preview --recipe-file <path>` only with currently supported adjustments unless explicit failure handling is part of the workflow.
+
+## Current Caveat
+
+The merged snapshot readback path is documented and tested at the contract level, but the repo-built sibling `../darktable/build/bin/darktable` still shows a local startup/import instability in this workspace.
+
+That can make `bun run smoke:live-snapshot` and the fork helper validator fail locally even though the code and PR slices are merged. Keep that caveat explicit in validation notes until the runtime issue is fixed.
 
 ## API or CLI?
 

@@ -4,18 +4,21 @@ darktableAI is a Bun + TypeScript CLI for AI-assisted photo editing workflows bu
 
 ## Status
 
-This repository is an MVP, not a full editor.
+This repository now has the first live-control foundation slices merged, but it is not feature-complete yet.
 
 What exists today:
 - a CLI-first workflow for capabilities discovery, smoke rendering, and preview rendering
 - a strict `DevelopRecipe` contract with explicit validation
 - deterministic manifests, preview artifacts, and isolated darktable runtime directories
 - truthful preview compilation for a limited set of adjustment kinds
+- an audited darktable module capability catalog that locks the editable backlog against the current `darktable/src/iop` inventory
+- a fork-backed live bridge with lightweight session readback, generic control metadata, deep snapshot readback, and successful live exposure mutation
 
 What does not exist yet:
 - a broad darktable editing surface
 - HTTP/API orchestration as the primary interface
 - truthful support for every recipe adjustment already named in the contract
+- full live parity for the audited module catalog
 - fork-only editing features such as retouch or liquify in the CLI
 
 ## Core Features
@@ -23,6 +26,9 @@ What does not exist yet:
 - `capabilities` returns JSON describing the supported recipe adjustment surface and broader darktable-native capability map
 - `smoke` runs a real fixture-backed `darktable-cli` export and records the result
 - `render-preview` compiles supported recipes into XMP sidecars and renders a preview image through `darktable-cli`
+- `live-session-info` returns lightweight live darkroom session state for bounded polling loops
+- `live-session-snapshot` returns active-image, control, module-stack, and history readback through the sibling fork helper
+- `live-set-exposure` performs a successful live mutation through the generic bridge control surface
 - successful runs return JSON-only payloads with canonical artifact paths and execution diagnostics
 - smoke and preview runs use separate runtime directories, so they can run concurrently without clobbering each other
 
@@ -50,6 +56,7 @@ The contract also includes `whites` and `blacks`, but preview compilation does n
 | `smoke` against supported fixtures | Yes, with `darktable-cli` and `darktable` on `PATH` | No |
 | `render-preview` for `crop`, `exposure`, `contrast`, `saturation`, `vibrance`, `highlights`, `shadows`, `blackPoint`, `whitePoint` | Yes | No |
 | `render-preview` for `temperature` + `tint` | No | Yes - darktableAI resolves truthful temperature-module params through `darktable-wb-resolve`, expected at `../darktable/build/bin/darktable-wb-resolve` |
+| `live-session-info`, `live-session-snapshot`, `live-set-exposure` | No | Yes - these commands require `../darktable/build/bin/darktable-live-bridge` and a darktable GUI session |
 | retouch / spot removal / liquify style controls | No | These are marked `fork-required` in capabilities, but they are not implemented in the CLI yet |
 
 Notes:
@@ -88,6 +95,7 @@ bun run cli -- capabilities
 bun run cli -- smoke --fixture sample-fixture
 bun run cli -- render-preview --recipe-file examples/recipes/sample-develop-recipe.json
 bun run cli -- live-session-info
+bun run cli -- live-session-snapshot
 bun run cli -- live-set-exposure --exposure 1.25 --timeout-ms 1500 --poll-interval-ms 100
 ```
 
@@ -96,10 +104,12 @@ Reusable validation commands:
 ```bash
 bun run smoke:preview
 bun run smoke:live
+bun run smoke:live-snapshot
 ```
 
 - `smoke:preview` is the 15-second darktable-cli fixture smoke check.
 - `smoke:live` is the 15-second tmux/dbus/xvfb live-session validation that expects live exposure mutation to complete and read back through the sibling `darktable` fork helper.
+- `smoke:live-snapshot` is the 15-second tmux/dbus/xvfb snapshot validation for `live-session-snapshot`; in this workspace it may still hit the known repo-built darktable startup instability documented in `docs/agent-feedback-loop.md`.
 
 Typical preview loop:
 1. Write or update a recipe JSON file.
@@ -109,6 +119,7 @@ Typical preview loop:
 5. Revise the recipe and run again.
 
 See `docs/cli.md` for command details and `docs/agent-feedback-loop.md` for the current iteration model.
+See `docs/darktable-module-capability-catalog.md` for the audited module catalog that now drives the feature backlog.
 
 ## Recipe Model
 
@@ -157,7 +168,7 @@ Both commands are wrapped in hard 15-second timeouts so they fail fast instead o
 
 ## Contributing
 
-Contributions are welcome, but keep changes aligned with the current MVP scope.
+Contributions are welcome, but keep changes aligned with the audited module catalog and current feature-complete roadmap.
 
 Expectations:
 - keep the CLI and contracts explicit; do not add ambiguous defaults or silent fallbacks
