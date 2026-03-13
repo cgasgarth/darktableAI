@@ -127,8 +127,13 @@ export class StrictCliInvocationParser implements CliInvocationParser {
     const instanceKey = this.readRequiredOption(argv, "--instance-key");
     const action = this.readRequiredOption(argv, "--action");
 
-    if (action !== "enable" && action !== "disable") {
-      throw new Error("Option '--action' must be 'enable' or 'disable'.");
+    if (
+      action !== "enable" &&
+      action !== "disable" &&
+      action !== "create" &&
+      action !== "duplicate"
+    ) {
+      throw new Error("Option '--action' must be 'enable', 'disable', 'create', or 'duplicate'.");
     }
 
     return {

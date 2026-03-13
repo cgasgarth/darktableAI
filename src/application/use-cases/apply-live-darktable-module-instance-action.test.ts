@@ -97,10 +97,53 @@ describe("ApplyLiveDarktableModuleInstanceAction", (): void => {
       helperCallDiagnostics: [createDiagnostics("apply-module-instance-action", 4)]
     });
   });
+
+  test("returns helper snapshot for create mutations without extra readback", async (): Promise<void> => {
+    const mutation = {
+      bridgeVersion: 1 as const,
+      status: "ok" as const,
+      session: createSession(10),
+      activeImage: createActiveImage(),
+      moduleAction: createForkModuleAction("create", "exposure#0#0#", "exposure#0#1#1"),
+      snapshot: {
+        appliedHistoryEnd: 2,
+        controls: [createExposureControl()],
+        moduleStack: [createModuleState(true, "exposure#0#1#1")],
+        historyItems: [createHistoryItem(true, "exposure#0#1#1")]
+      },
+      diagnostics: createDiagnostics("apply-module-instance-action", 7)
+    };
+    const gateway = new StubGateway({
+      mutation,
+      snapshot: mutation
+    });
+    const useCase = new ApplyLiveDarktableModuleInstanceAction(gateway);
+
+    const result = await useCase.execute({
+      instanceKey: "exposure#0#0#",
+      action: "create"
+    });
+
+    expect(gateway.requests).toEqual([
+      {
+        instanceKey: "exposure#0#0#",
+        action: "create"
+      }
+    ]);
+    expect(gateway.getSnapshotCalls).toBe(0);
+    expect(result).toEqual({
+      mutation,
+      latestSnapshot: mutation,
+      helperCallDiagnostics: [createDiagnostics("apply-module-instance-action", 7)]
+    });
+  });
 });
 
 class StubGateway {
-  public readonly requests: Array<{ readonly instanceKey: string; readonly action: "enable" | "disable" }> = [];
+  public readonly requests: Array<{
+    readonly instanceKey: string;
+    readonly action: "enable" | "disable" | "create" | "duplicate";
+  }> = [];
   public getSnapshotCalls = 0;
 
   public constructor(
@@ -125,7 +168,7 @@ class StubGateway {
 
   public applyModuleInstanceAction(request: {
     readonly instanceKey: string;
-    readonly action: "enable" | "disable";
+    readonly action: "enable" | "disable" | "create" | "duplicate";
   }): Promise<LiveDarktableModuleInstanceActionMutation> {
     this.requests.push(request);
     return Promise.resolve(this.state.mutation);
@@ -196,6 +239,36 @@ function createModuleAction(
   } as const;
 }
 
+function createForkModuleAction(
+  action: "create" | "duplicate",
+  targetInstanceKey: string,
+  resultInstanceKey: string
+): {
+  readonly targetInstanceKey: string;
+  readonly action: "create" | "duplicate";
+  readonly resultInstanceKey: string;
+  readonly moduleOp: "exposure";
+  readonly iopOrder: 12;
+  readonly multiPriority: 1;
+  readonly multiName: "1";
+  readonly historyBefore: 1;
+  readonly historyAfter: 2;
+  readonly requestedHistoryEnd: 2;
+} {
+  return {
+    targetInstanceKey,
+    action,
+    resultInstanceKey,
+    moduleOp: "exposure",
+    iopOrder: 12,
+    multiPriority: 1,
+    multiName: "1",
+    historyBefore: 1,
+    historyAfter: 2,
+    requestedHistoryEnd: 2
+  } as const;
+}
+
 function createExposureControl(): {
   readonly id: "exposure.exposure";
   readonly module: "exposure";
@@ -230,8 +303,8 @@ function createExposureControl(): {
   } as const;
 }
 
-function createModuleState(enabled: boolean): {
-  readonly instanceKey: "exposure#0#0#";
+function createModuleState(enabled: boolean, instanceKey = "exposure#0#0#"): {
+  readonly instanceKey: string;
   readonly moduleOp: "exposure";
   readonly enabled: boolean;
   readonly iopOrder: 12;
@@ -242,7 +315,7 @@ function createModuleState(enabled: boolean): {
   };
 } {
   return {
-    instanceKey: "exposure#0#0#",
+    instanceKey,
     moduleOp: "exposure",
     enabled,
     iopOrder: 12,
@@ -254,10 +327,10 @@ function createModuleState(enabled: boolean): {
   } as const;
 }
 
-function createHistoryItem(enabled: boolean): {
+function createHistoryItem(enabled: boolean, instanceKey = "exposure#0#0#"): {
   readonly index: 0;
   readonly applied: true;
-  readonly instanceKey: "exposure#0#0#";
+  readonly instanceKey: string;
   readonly moduleOp: "exposure";
   readonly enabled: boolean;
   readonly iopOrder: 12;
@@ -270,7 +343,7 @@ function createHistoryItem(enabled: boolean): {
   return {
     index: 0,
     applied: true,
-    ...createModuleState(enabled)
+    ...createModuleState(enabled, instanceKey)
   } as const;
 }
 

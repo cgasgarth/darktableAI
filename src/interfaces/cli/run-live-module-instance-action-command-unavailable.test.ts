@@ -145,4 +145,135 @@ describe("RunLiveModuleInstanceActionCommand unavailable", (): void => {
       }
     });
   });
+
+  test("preserves unavailable create module-action context from the helper", async (): Promise<void> => {
+    const command = new RunLiveModuleInstanceActionCommand({
+      execute: () =>
+        Promise.resolve({
+          mutation: {
+            bridgeVersion: 1,
+            status: "unavailable" as const,
+            reason: "unsupported-module-state" as const,
+            session: {
+              view: "darkroom",
+              renderSequence: 8,
+              historyChangeSequence: 3,
+              imageLoadSequence: 1
+            },
+            activeImage: {
+              imageId: 7,
+              directoryPath: "/photos",
+              fileName: "frame.ARW",
+              sourceAssetPath: "/photos/frame.ARW"
+            },
+            moduleAction: {
+              targetInstanceKey: "temperature#0#0#",
+              action: "create",
+              moduleOp: "temperature",
+              iopOrder: 6,
+              multiPriority: 0,
+              multiName: "0",
+              historyBefore: 2,
+              historyAfter: 2,
+              requestedHistoryEnd: 2
+            },
+            diagnostics: {
+              helperBinaryPath: "/helper",
+              commandArguments: ["/helper", "apply-module-instance-action", "temperature#0#0#", "create"],
+              exitCode: 0,
+              elapsedMilliseconds: 5
+            }
+          },
+          latestSnapshot: {
+            bridgeVersion: 1,
+            status: "unavailable" as const,
+            reason: "unsupported-module-state" as const,
+            session: {
+              view: "darkroom",
+              renderSequence: 8,
+              historyChangeSequence: 3,
+              imageLoadSequence: 1
+            },
+            activeImage: {
+              imageId: 7,
+              directoryPath: "/photos",
+              fileName: "frame.ARW",
+              sourceAssetPath: "/photos/frame.ARW"
+            },
+            moduleAction: {
+              targetInstanceKey: "temperature#0#0#",
+              action: "create",
+              moduleOp: "temperature",
+              iopOrder: 6,
+              multiPriority: 0,
+              multiName: "0",
+              historyBefore: 2,
+              historyAfter: 2,
+              requestedHistoryEnd: 2
+            },
+            diagnostics: {
+              helperBinaryPath: "/helper",
+              commandArguments: ["/helper", "apply-module-instance-action", "temperature#0#0#", "create"],
+              exitCode: 0,
+              elapsedMilliseconds: 5
+            }
+          },
+          helperCallDiagnostics: [
+            {
+              helperBinaryPath: "/helper",
+              commandArguments: ["/helper", "apply-module-instance-action", "temperature#0#0#", "create"],
+              exitCode: 0,
+              elapsedMilliseconds: 5
+            }
+          ]
+        })
+    });
+
+    const result = await command.execute({
+      requestId: "request-6",
+      instanceKey: "temperature#0#0#",
+      action: "create"
+    });
+
+    expect(result).toEqual({
+      ok: true,
+      output: {
+        requestId: "request-6",
+        bridgeVersion: 1,
+        status: "unavailable",
+        reason: "unsupported-module-state",
+        diagnostics: [
+          {
+            helperBinaryPath: "/helper",
+            commandArguments: ["/helper", "apply-module-instance-action", "temperature#0#0#", "create"],
+            exitCode: 0,
+            elapsedMilliseconds: 5
+          }
+        ],
+        session: {
+          view: "darkroom",
+          renderSequence: 8,
+          historyChangeSequence: 3,
+          imageLoadSequence: 1
+        },
+        activeImage: {
+          imageId: 7,
+          directoryPath: "/photos",
+          fileName: "frame.ARW",
+          sourceAssetPath: "/photos/frame.ARW"
+        },
+        moduleAction: {
+          targetInstanceKey: "temperature#0#0#",
+          action: "create",
+          moduleOp: "temperature",
+          iopOrder: 6,
+          multiPriority: 0,
+          multiName: "0",
+          historyBefore: 2,
+          historyAfter: 2,
+          requestedHistoryEnd: 2
+        }
+      }
+    });
+  });
 });

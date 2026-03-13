@@ -9,6 +9,7 @@ import type {
   LiveDarktableExposureState,
   LiveDarktableModuleInstanceAction,
   LiveDarktableModuleInstanceActionResult,
+  LiveDarktableToggleModuleInstanceAction,
   LiveDarktableUnavailableModuleInstanceActionResult,
   LiveDarktableSessionState,
   LiveDarktableUnavailableReason,
@@ -229,21 +230,37 @@ export class DarktableLiveBridgeResponseParser {
 
   private readModuleAction(value: unknown): LiveDarktableModuleInstanceActionResult {
     const record = this.readRecord(value, "moduleAction");
-
-    return {
+    const action = this.readModuleInstanceAction(record["action"], "moduleAction.action");
+    const common = {
       targetInstanceKey: this.readString(record["targetInstanceKey"], "moduleAction.targetInstanceKey"),
-      requestedEnabled: this.readBoolean(record["requestedEnabled"], "moduleAction.requestedEnabled"),
+      action,
       moduleOp: this.readString(record["moduleOp"], "moduleAction.moduleOp"),
       iopOrder: this.readInteger(record["iopOrder"], "moduleAction.iopOrder"),
       multiPriority: this.readInteger(record["multiPriority"], "moduleAction.multiPriority"),
       multiName: this.readStringValue(record["multiName"], "moduleAction.multiName"),
-      action: this.readModuleInstanceAction(record["action"], "moduleAction.action"),
-      previousEnabled: this.readBoolean(record["previousEnabled"], "moduleAction.previousEnabled"),
-      currentEnabled: this.readBoolean(record["currentEnabled"], "moduleAction.currentEnabled"),
-      changed: this.readBoolean(record["changed"], "moduleAction.changed"),
       historyBefore: this.readInteger(record["historyBefore"], "moduleAction.historyBefore"),
       historyAfter: this.readInteger(record["historyAfter"], "moduleAction.historyAfter"),
-      requestedHistoryEnd: this.readInteger(record["requestedHistoryEnd"], "moduleAction.requestedHistoryEnd")
+      requestedHistoryEnd: this.readInteger(
+        record["requestedHistoryEnd"],
+        "moduleAction.requestedHistoryEnd"
+      )
+    };
+
+    if (this.isToggleModuleInstanceAction(action)) {
+      return {
+        ...common,
+        action,
+        requestedEnabled: this.readBoolean(record["requestedEnabled"], "moduleAction.requestedEnabled"),
+        previousEnabled: this.readBoolean(record["previousEnabled"], "moduleAction.previousEnabled"),
+        currentEnabled: this.readBoolean(record["currentEnabled"], "moduleAction.currentEnabled"),
+        changed: this.readBoolean(record["changed"], "moduleAction.changed")
+      };
+    }
+
+    return {
+      ...common,
+      action,
+      resultInstanceKey: this.readString(record["resultInstanceKey"], "moduleAction.resultInstanceKey")
     };
   }
 
@@ -256,6 +273,9 @@ export class DarktableLiveBridgeResponseParser {
       ...(record["requestedEnabled"] === undefined
         ? {}
         : { requestedEnabled: this.readBoolean(record["requestedEnabled"], "moduleAction.requestedEnabled") }),
+      ...(record["resultInstanceKey"] === undefined
+        ? {}
+        : { resultInstanceKey: this.readString(record["resultInstanceKey"], "moduleAction.resultInstanceKey") }),
       ...(record["moduleOp"] === undefined
         ? {}
         : { moduleOp: this.readString(record["moduleOp"], "moduleAction.moduleOp") }),
@@ -347,10 +367,18 @@ export class DarktableLiveBridgeResponseParser {
   }
 
   private readModuleInstanceAction(value: unknown, label: string): LiveDarktableModuleInstanceAction {
-    if (value !== "enable" && value !== "disable") {
-      throw new Error(`darktable-live-bridge field '${label}' must be 'enable' or 'disable'.`);
+    if (value !== "enable" && value !== "disable" && value !== "create" && value !== "duplicate") {
+      throw new Error(
+        `darktable-live-bridge field '${label}' must be 'enable', 'disable', 'create', or 'duplicate'.`
+      );
     }
 
     return value;
+  }
+
+  private isToggleModuleInstanceAction(
+    action: LiveDarktableModuleInstanceAction
+  ): action is LiveDarktableToggleModuleInstanceAction {
+    return action === "enable" || action === "disable";
   }
 }
