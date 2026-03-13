@@ -15,7 +15,8 @@
     "test": "bun test",
     "test:integration": "bun test src/infrastructure/darktable/darktable-cli-regression.test.ts",
     "cli": "bun run src/bin/darktableai.ts",
-    "smoke": "bun run cli -- smoke --fixture sample-fixture",
+    "smoke:live": "timeout --signal=KILL 15s bun run scripts/validate-live-session.ts",
+    "smoke:preview": "timeout --signal=KILL 15s bun run cli -- smoke --fixture sample-fixture",
     "preview": "bun run cli -- render-preview --recipe-file examples/recipes/sample-develop-recipe.json",
     "check": "bun run lint && bun run lint:max-lines && bun run typecheck && bun run test"
   },
