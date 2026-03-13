@@ -35,11 +35,11 @@ export interface LiveSessionSnapshotCliInvocation {
 }
 
 export type LiveModuleInstanceActionCliInvocation =
-  | {
-      readonly kind: "live-module-instance-action";
-      readonly instanceKey: string;
-      readonly action: "enable" | "disable" | "create" | "duplicate";
-    }
+    | {
+        readonly kind: "live-module-instance-action";
+        readonly instanceKey: string;
+        readonly action: "enable" | "disable" | "create" | "duplicate" | "delete";
+      }
   | {
       readonly kind: "live-module-instance-action";
       readonly instanceKey: string;

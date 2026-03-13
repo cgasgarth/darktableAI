@@ -1,4 +1,5 @@
 import type {
+  LiveDarktableDeleteModuleInstanceAction,
   LiveDarktableApplyModuleInstanceActionResult,
   LiveDarktableForkModuleInstanceAction,
   LiveDarktableReorderModuleInstanceAction,
@@ -12,7 +13,10 @@ import type {
 export type ApplyLiveDarktableModuleInstanceActionRequest =
   | {
       readonly instanceKey: string;
-      readonly action: LiveDarktableToggleModuleInstanceAction | LiveDarktableForkModuleInstanceAction;
+      readonly action:
+        | LiveDarktableToggleModuleInstanceAction
+        | LiveDarktableForkModuleInstanceAction
+        | LiveDarktableDeleteModuleInstanceAction;
     }
   | {
       readonly instanceKey: string;

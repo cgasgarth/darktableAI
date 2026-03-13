@@ -102,6 +102,7 @@ export type LiveDarktableUnavailableReason =
   | "unsupported-module-action"
   | "unsupported-module-state"
   | "module-action-failed"
+  | "module-delete-blocked-last-instance"
   | "module-reorder-blocked-by-fence"
   | "module-reorder-blocked-by-rule"
   | "module-reorder-no-op"
@@ -111,11 +112,14 @@ export type LiveDarktableToggleModuleInstanceAction = "enable" | "disable";
 
 export type LiveDarktableForkModuleInstanceAction = "create" | "duplicate";
 
+export type LiveDarktableDeleteModuleInstanceAction = "delete";
+
 export type LiveDarktableReorderModuleInstanceAction = "move-before" | "move-after";
 
 export type LiveDarktableModuleInstanceAction =
   | LiveDarktableToggleModuleInstanceAction
   | LiveDarktableForkModuleInstanceAction
+  | LiveDarktableDeleteModuleInstanceAction
   | LiveDarktableReorderModuleInstanceAction;
 
 interface LiveDarktableModuleInstanceActionResultCommon {
@@ -145,6 +149,15 @@ export interface LiveDarktableForkModuleInstanceActionResult
   readonly resultInstanceKey: string;
 }
 
+export interface LiveDarktableDeleteModuleInstanceActionResult
+  extends LiveDarktableModuleInstanceActionResultCommon {
+  readonly action: LiveDarktableDeleteModuleInstanceAction;
+  readonly replacementInstanceKey?: string;
+  readonly replacementIopOrder?: number;
+  readonly replacementMultiPriority?: number;
+  readonly replacementMultiName?: string;
+}
+
 export interface LiveDarktableReorderModuleInstanceActionResult
   extends LiveDarktableModuleInstanceActionResultCommon {
   readonly action: LiveDarktableReorderModuleInstanceAction;
@@ -156,6 +169,7 @@ export interface LiveDarktableReorderModuleInstanceActionResult
 export type LiveDarktableModuleInstanceActionResult =
   | LiveDarktableToggleModuleInstanceActionResult
   | LiveDarktableForkModuleInstanceActionResult
+  | LiveDarktableDeleteModuleInstanceActionResult
   | LiveDarktableReorderModuleInstanceActionResult;
 
 export interface LiveDarktableUnavailableModuleInstanceActionResult {
@@ -164,10 +178,14 @@ export interface LiveDarktableUnavailableModuleInstanceActionResult {
   readonly anchorInstanceKey?: string;
   readonly requestedEnabled?: boolean;
   readonly resultInstanceKey?: string;
+  readonly replacementInstanceKey?: string;
   readonly moduleOp?: string;
   readonly iopOrder?: number;
   readonly multiPriority?: number;
   readonly multiName?: string;
+  readonly replacementIopOrder?: number;
+  readonly replacementMultiPriority?: number;
+  readonly replacementMultiName?: string;
   readonly previousIopOrder?: number;
   readonly currentIopOrder?: number;
   readonly previousEnabled?: boolean;

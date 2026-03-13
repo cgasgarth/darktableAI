@@ -141,9 +141,15 @@ export class StrictCliInvocationParser implements CliInvocationParser {
       };
     }
 
-    if (action !== "enable" && action !== "disable" && action !== "create" && action !== "duplicate") {
+    if (
+      action !== "enable" &&
+      action !== "disable" &&
+      action !== "create" &&
+      action !== "duplicate" &&
+      action !== "delete"
+    ) {
       throw new Error(
-        "Option '--action' must be 'enable', 'disable', 'create', 'duplicate', 'move-before', or 'move-after'."
+        "Option '--action' must be 'enable', 'disable', 'create', 'duplicate', 'delete', 'move-before', or 'move-after'."
       );
     }
 
