@@ -15,6 +15,10 @@ The CLI is designed for agent use:
 
 Returned success payload paths are canonical. Agents should use them directly instead of reconstructing artifact locations.
 
+Runtime note:
+- `help`, `capabilities`, `smoke`, and preview renders that stay within `crop`, `exposure`, `contrast`, `saturation`, `vibrance`, `highlights`, `shadows`, `blackPoint`, and `whitePoint` work with stock packaged darktable
+- preview renders that include `temperature` and `tint` also require the `darktable-wb-resolve` helper from `cgasgarth/darktable`, expected at `../darktable/build/bin/darktable-wb-resolve`
+
 ## Commands
 
 ### `help`
@@ -44,6 +48,7 @@ The payload currently reports:
 
 Operator notes:
 - `temperature` and `tint` are truthful darktable temperature-module controls, but recipes must provide both together
+- `temperature` + `tint` preview compilation depends on the fork helper `darktable-wb-resolve`; stock packaged darktable alone is not enough for that path
 - `blackPoint` and `whitePoint` map to linked-channel `rgblevels` endpoints; they are not aliases for generic `blacks` or `whites`
 
 ### `smoke`

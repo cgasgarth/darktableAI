@@ -56,6 +56,8 @@ The loop also supports concurrent `smoke` and `render-preview` runs because each
 - current preview support for `crop`, `exposure`, `contrast`, `saturation`, `vibrance`, `highlights`, `shadows`, paired `temperature` + `tint`, and truthful `blackPoint` / `whitePoint` endpoint control via `rgblevels`
 - explicit current non-support for generic `whites` and `blacks`
 - JSON-only success payloads that include diagnostics with runtime paths and exact darktable command arguments
+- stock packaged darktable coverage for smoke plus preview recipes that stay off the white-balance helper path
+- a fork-helper requirement for preview recipes that include paired `temperature` + `tint`, because those runs resolve params through `darktable-wb-resolve`
 
 ## What still needs to be implemented
 
@@ -69,6 +71,7 @@ The loop also supports concurrent `smoke` and `render-preview` runs because each
 - Run `bun run cli -- help` to confirm the available commands.
 - Run `bun run cli -- capabilities` before recipe generation when the agent needs the live supported/planned adjustment set.
 - Pair `temperature` with `tint` in the same recipe whenever white balance is requested.
+- Use a sibling build of `cgasgarth/darktable` when the recipe includes `temperature` + `tint`; stock packaged darktable is enough for the other currently supported preview adjustments.
 - Use `blackPoint` and `whitePoint` when you need truthful endpoint control; do not substitute unsupported generic `whites` or `blacks`.
 - Use `bun run cli -- render-preview --recipe-file <path>` only with currently supported adjustments unless explicit failure handling is part of the workflow.
 
