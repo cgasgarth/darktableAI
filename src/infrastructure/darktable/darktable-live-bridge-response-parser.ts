@@ -193,6 +193,7 @@ export class DarktableLiveBridgeResponseParser {
       value !== "unknown-instance-key" &&
       value !== "unknown-anchor-instance-key" &&
       value !== "unsupported-module-blend" &&
+      value !== "unsupported-module-blend-mode" &&
       value !== "unsupported-module-action" &&
       value !== "unsupported-module-state" &&
       value !== "module-action-failed" &&
@@ -204,7 +205,7 @@ export class DarktableLiveBridgeResponseParser {
       value !== "snapshot-unavailable"
     ) {
       throw new Error(
-        "darktable-live-bridge field 'reason' must be 'unsupported-view', 'no-active-image', 'unknown-instance-key', 'unknown-anchor-instance-key', 'unsupported-module-blend', 'unsupported-module-action', 'unsupported-module-state', 'module-action-failed', 'module-blend-failed', 'module-delete-blocked-last-instance', 'module-reorder-blocked-by-fence', 'module-reorder-blocked-by-rule', 'module-reorder-no-op', or 'snapshot-unavailable'."
+        "darktable-live-bridge field 'reason' must be 'unsupported-view', 'no-active-image', 'unknown-instance-key', 'unknown-anchor-instance-key', 'unsupported-module-blend', 'unsupported-module-blend-mode', 'unsupported-module-action', 'unsupported-module-state', 'module-action-failed', 'module-blend-failed', 'module-delete-blocked-last-instance', 'module-reorder-blocked-by-fence', 'module-reorder-blocked-by-rule', 'module-reorder-no-op', or 'snapshot-unavailable'."
       );
     }
     return value;
@@ -216,11 +217,12 @@ export class DarktableLiveBridgeResponseParser {
       value !== "no-active-image" &&
       value !== "unknown-instance-key" &&
       value !== "unsupported-module-blend" &&
+      value !== "unsupported-module-blend-mode" &&
       value !== "module-blend-failed" &&
       value !== "snapshot-unavailable"
     ) {
       throw new Error(
-        "darktable-live-bridge field 'reason' must be 'unsupported-view', 'no-active-image', 'unknown-instance-key', 'unsupported-module-blend', 'module-blend-failed', or 'snapshot-unavailable' for module blend responses."
+        "darktable-live-bridge field 'reason' must be 'unsupported-view', 'no-active-image', 'unknown-instance-key', 'unsupported-module-blend', 'unsupported-module-blend-mode', 'module-blend-failed', or 'snapshot-unavailable' for module blend responses."
       );
     }
 

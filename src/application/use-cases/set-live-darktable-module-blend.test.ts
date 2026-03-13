@@ -47,6 +47,71 @@ describe("SetLiveDarktableModuleBlend", (): void => {
     });
   });
 
+  test("forwards blend mode and reverse order mutations without adding omitted fields", async (): Promise<void> => {
+    const mutation = {
+      bridgeVersion: 1 as const,
+      status: "ok" as const,
+      session: createSession(),
+      activeImage: createActiveImage(),
+      moduleBlend: {
+        targetInstanceKey: "colorbalancergb#7#1#",
+        moduleOp: "colorbalancergb",
+        iopOrder: 18,
+        multiPriority: 1,
+        multiName: "mask",
+        previousBlendMode: "normal",
+        requestedBlendMode: "multiply",
+        currentBlendMode: "multiply",
+        previousReverseOrder: false,
+        requestedReverseOrder: true,
+        currentReverseOrder: true,
+        historyBefore: 4,
+        historyAfter: 5,
+        requestedHistoryEnd: 5
+      },
+      snapshot: createSnapshot(75),
+      diagnostics: createDiagnostics('{"blendMode":"multiply","reverseOrder":true}')
+    };
+    const gateway = new StubGateway(mutation);
+    const useCase = new SetLiveDarktableModuleBlend(gateway);
+
+    await useCase.execute({
+      instanceKey: "colorbalancergb#7#1#",
+      blendMode: "multiply",
+      reverseOrder: true
+    });
+
+    expect(gateway.requests).toEqual([
+      {
+        instanceKey: "colorbalancergb#7#1#",
+        blendMode: "multiply",
+        reverseOrder: true
+      }
+    ]);
+  });
+
+  test("rejects empty module blend requests", async (): Promise<void> => {
+    const gateway = new StubGateway({
+      bridgeVersion: 1,
+      status: "unavailable",
+      diagnostics: createDiagnostics()
+    });
+    const useCase = new SetLiveDarktableModuleBlend(gateway);
+
+    try {
+      await useCase.execute({
+        instanceKey: "exposure#0#0#"
+      });
+      throw new Error("Expected empty module blend request to fail.");
+    } catch (error: unknown) {
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toBe(
+        "SetLiveDarktableModuleBlend requires at least one of opacity, blendMode, or reverseOrder."
+      );
+    }
+    expect(gateway.requests).toEqual([]);
+  });
+
   test("preserves unavailable machine-readable reasons", async (): Promise<void> => {
     const mutation = {
       bridgeVersion: 1 as const,
@@ -77,7 +142,12 @@ describe("SetLiveDarktableModuleBlend", (): void => {
 });
 
 class StubGateway {
-  public readonly requests: Array<{ readonly instanceKey: string; readonly opacity: number }> = [];
+  public readonly requests: Array<{
+    readonly instanceKey: string;
+    readonly opacity?: number;
+    readonly blendMode?: string;
+    readonly reverseOrder?: boolean;
+  }> = [];
 
   public constructor(private readonly mutation: LiveDarktableModuleBlendMutation) {}
 
@@ -95,7 +165,9 @@ class StubGateway {
 
   public applyModuleInstanceBlend(request: {
     readonly instanceKey: string;
-    readonly opacity: number;
+    readonly opacity?: number;
+    readonly blendMode?: string;
+    readonly reverseOrder?: boolean;
   }): Promise<LiveDarktableModuleBlendMutation> {
     this.requests.push(request);
     return Promise.resolve(this.mutation);
@@ -240,15 +312,15 @@ function createSnapshot(opacity: number): {
   } as const;
 }
 
-function createDiagnostics(): {
+function createDiagnostics(payload = '{"opacity":75}'): {
   readonly helperBinaryPath: "/helper";
-  readonly commandArguments: readonly ["/helper", "apply-module-instance-blend", "exposure#0#0#", '{"opacity":75}'];
+  readonly commandArguments: readonly ["/helper", "apply-module-instance-blend", "exposure#0#0#", string];
   readonly exitCode: 0;
   readonly elapsedMilliseconds: 6;
 } {
   return {
     helperBinaryPath: "/helper",
-    commandArguments: ["/helper", "apply-module-instance-blend", "exposure#0#0#", '{"opacity":75}'],
+    commandArguments: ["/helper", "apply-module-instance-blend", "exposure#0#0#", payload],
     exitCode: 0,
     elapsedMilliseconds: 6
   } as const;

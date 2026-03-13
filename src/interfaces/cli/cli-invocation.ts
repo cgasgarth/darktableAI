@@ -69,5 +69,7 @@ export type LiveSetExposureCliInvocation =
 export interface LiveSetModuleBlendCliInvocation {
   readonly kind: "live-set-module-blend";
   readonly instanceKey: string;
-  readonly opacity: number;
+  readonly opacity?: number;
+  readonly blendMode?: string;
+  readonly reverseOrder?: boolean;
 }

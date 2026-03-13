@@ -91,7 +91,11 @@ async function run(): Promise<never> {
       const result = await services.runLiveSetModuleBlendCommand.execute({
         requestId: crypto.randomUUID(),
         instanceKey: invocation.instanceKey,
-        opacity: invocation.opacity
+        ...(invocation.opacity === undefined ? {} : { opacity: invocation.opacity }),
+        ...(invocation.blendMode === undefined ? {} : { blendMode: invocation.blendMode }),
+        ...(invocation.reverseOrder === undefined
+          ? {}
+          : { reverseOrder: invocation.reverseOrder })
       });
 
       return handleCommandResult(result);
@@ -148,6 +152,9 @@ function getHelpText(): string {
     "  bun run cli -- live-set-exposure --exposure <ev>",
     "  bun run cli -- live-set-exposure --exposure <ev> --timeout-ms <ms> --poll-interval-ms <ms>",
     "  bun run cli -- live-set-module-blend --instance-key <key> --opacity <percent>",
+    "  bun run cli -- live-set-module-blend --instance-key <key> --blend-mode <machine-name>",
+    "  bun run cli -- live-set-module-blend --instance-key <key> --reverse-order <true|false>",
+    "  bun run cli -- live-set-module-blend --instance-key <key> --opacity <percent> --blend-mode <machine-name> --reverse-order <true|false>",
     "  bun run cli -- live-module-instance-action --instance-key <key> --action <enable|disable|create|duplicate|delete>",
     "  bun run cli -- live-module-instance-action --instance-key <key> --action <move-before|move-after> --anchor-instance-key <key>",
     "",
@@ -159,6 +166,9 @@ function getHelpText(): string {
     "  bun run cli -- live-session-snapshot",
     "  bun run cli -- live-set-exposure --exposure 0.5 --timeout-ms 1500 --poll-interval-ms 100",
     "  bun run cli -- live-set-module-blend --instance-key exposure#0#0# --opacity 75",
+    "  bun run cli -- live-set-module-blend --instance-key colorbalancergb#7#1# --blend-mode multiply",
+    "  bun run cli -- live-set-module-blend --instance-key colorbalancergb#7#1# --reverse-order true",
+    "  bun run cli -- live-set-module-blend --instance-key colorbalancergb#7#1# --opacity 62 --blend-mode softlight --reverse-order false",
     "  bun run cli -- live-module-instance-action --instance-key exposure#0#0# --action disable",
     "  bun run cli -- live-module-instance-action --instance-key exposure#0#0# --action duplicate",
     "  bun run cli -- live-module-instance-action --instance-key colorbalancergb#7#1# --action delete",

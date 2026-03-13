@@ -118,6 +118,7 @@ export type LiveDarktableUnavailableReason =
   | "unknown-instance-key"
   | "unknown-anchor-instance-key"
   | "unsupported-module-blend"
+  | "unsupported-module-blend-mode"
   | "unsupported-module-action"
   | "unsupported-module-state"
   | "module-action-failed"
@@ -134,9 +135,15 @@ export interface LiveDarktableModuleBlendResult {
   readonly iopOrder: number;
   readonly multiPriority: number;
   readonly multiName: string;
-  readonly previousOpacity: number;
-  readonly requestedOpacity: number;
-  readonly currentOpacity: number;
+  readonly previousOpacity?: number;
+  readonly requestedOpacity?: number;
+  readonly currentOpacity?: number;
+  readonly previousBlendMode?: string;
+  readonly requestedBlendMode?: string;
+  readonly currentBlendMode?: string;
+  readonly previousReverseOrder?: boolean;
+  readonly requestedReverseOrder?: boolean;
+  readonly currentReverseOrder?: boolean;
   readonly historyBefore: number;
   readonly historyAfter: number;
   readonly requestedHistoryEnd: number;
@@ -151,6 +158,12 @@ export interface LiveDarktableUnavailableModuleBlendResult {
   readonly previousOpacity?: number;
   readonly requestedOpacity?: number;
   readonly currentOpacity?: number;
+  readonly previousBlendMode?: string;
+  readonly requestedBlendMode?: string;
+  readonly currentBlendMode?: string;
+  readonly previousReverseOrder?: boolean;
+  readonly requestedReverseOrder?: boolean;
+  readonly currentReverseOrder?: boolean;
   readonly historyBefore?: number;
   readonly historyAfter?: number;
   readonly requestedHistoryEnd?: number;
