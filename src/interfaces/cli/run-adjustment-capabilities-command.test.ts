@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import { listAdjustmentCapabilities } from "../../contracts/adjustment-capability";
+import { listDarktableNativeCapabilities } from "../../contracts/darktable-native-capability";
 import { RunAdjustmentCapabilitiesCommand } from "./run-adjustment-capabilities-command";
 
 describe("RunAdjustmentCapabilitiesCommand", () => {
@@ -12,7 +13,8 @@ describe("RunAdjustmentCapabilitiesCommand", () => {
     expect(result).toEqual({
       ok: true,
       output: {
-        adjustments: listAdjustmentCapabilities()
+        adjustments: listAdjustmentCapabilities(),
+        darktableNative: listDarktableNativeCapabilities()
       }
     });
   });

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import path from "node:path";
 
 import { listAdjustmentCapabilities } from "../contracts/adjustment-capability";
+import { listDarktableNativeCapabilities } from "../contracts/darktable-native-capability";
 
 describe("darktableai capabilities command", () => {
   test("prints JSON-only capability data to stdout", () => {
@@ -17,8 +18,14 @@ describe("darktableai capabilities command", () => {
     expect(processResult.stderr.toString()).toBe("");
 
     const stdout = processResult.stdout.toString().trim();
-    const parsed = JSON.parse(stdout) as { adjustments: Record<string, unknown> };
+    const parsed = JSON.parse(stdout) as {
+      adjustments: Record<string, unknown>;
+      darktableNative: Record<string, unknown>;
+    };
 
-    expect(parsed).toEqual({ adjustments: listAdjustmentCapabilities() });
+    expect(parsed).toEqual({
+      adjustments: listAdjustmentCapabilities(),
+      darktableNative: listDarktableNativeCapabilities()
+    });
   });
 });

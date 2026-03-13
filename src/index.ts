@@ -7,6 +7,15 @@ export {
 } from "./contracts/adjustment-capability";
 
 export {
+  DARKTABLE_NATIVE_CAPABILITY_REGISTRY,
+  listDarktableNativeCapabilities,
+  type DarktableNativeCapability,
+  type DarktableNativeCapabilityRegistry,
+  type DarktableNativeCapabilityStatus,
+  type PreviewCompilationStatus
+} from "./contracts/darktable-native-capability";
+
+export {
   StrictDevelopRecipeValidator,
   type AdjustmentKind,
   type AdjustmentOperation,
