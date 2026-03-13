@@ -21,6 +21,7 @@ Main product repo for the AI-assisted photo editing system built around darktabl
 - Prefer dependency injection and explicit interfaces around class-based code.
 - Keep API contracts strict: avoid ambiguous optional inputs, defaults, and fallbacks.
 - Run `bun run check` before merge; the local hooks do this automatically on commit.
+- Run `bun run test:integration` on machines with `darktable-cli` and `darktable` installed when you need the fixture-backed RAW regression coverage.
 
 ## CLI entry point
 

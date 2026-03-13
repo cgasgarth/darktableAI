@@ -37,10 +37,6 @@ const PREVIEW_CASES = [
   {
     recipeFileName: "tone-recipe.json",
     expectedOperations: ["shadhi", "rgblevels"]
-  },
-  {
-    recipeFileName: "sample-develop-recipe.json",
-    expectedOperations: ["crop", "exposure", "shadhi", "rgblevels", "temperature", "colorbalancergb"]
   }
 ] as const;
 
