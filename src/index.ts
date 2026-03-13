@@ -16,6 +16,25 @@ export {
 } from "./contracts/darktable-native-capability";
 
 export {
+  AUDITED_DARKTABLE_IOP_MODULES,
+  listAuditedDarktableIopModules,
+  type AuditedDarktableIopModule
+} from "./contracts/darktable-iop-audited-inventory";
+
+export {
+  AUDITED_DARKTABLE_IOP_SOURCE_PATHS,
+  DARKTABLE_MODULE_CAPABILITY_CATALOG,
+  listDarktableModuleCapabilityCatalog,
+  type DarktableCatalogModule,
+  type DarktableModuleCapabilityCatalog,
+  type DarktableModuleCapabilityCatalogEntry,
+  type DarktableModuleCatalogCategory,
+  type DarktableModuleCatalogStatus,
+  type DarktableModuleParameterBacklogStatus,
+  type DarktableModuleSupportState
+} from "./contracts/darktable-module-capability-catalog";
+
+export {
   StrictDevelopRecipeValidator,
   type AdjustmentKind,
   type AdjustmentOperation,
