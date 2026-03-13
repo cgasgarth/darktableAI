@@ -1,35 +1,86 @@
 # darktableAI
 
-Main product repo for the AI-assisted photo editing system built around darktable as the rendering engine.
+darktableAI is a Bun + TypeScript CLI for AI-assisted photo editing workflows built on top of darktable. It turns a strict JSON `DevelopRecipe` into a generated darktable XMP sidecar, renders previews through `darktable-cli`, and writes manifests and artifacts that agents can consume directly.
 
-## Current direction
+## Status
 
-- Use darktable as the deterministic photo-processing worker.
-- Build the product control plane here.
-- Keep darktable-specific fork changes in `../darktable`.
-- Use Bun and strict TypeScript for the main product code.
-- Work on branches and merge through PRs rather than pushing directly to `main`.
-- Make the CLI the primary AI-facing entry point during MVP work.
+This repository is an MVP, not a full editor.
 
-## Recommended stack
+What exists today:
+- a CLI-first workflow for capabilities discovery, smoke rendering, and preview rendering
+- a strict `DevelopRecipe` contract with explicit validation
+- deterministic manifests, preview artifacts, and isolated darktable runtime directories
+- truthful preview compilation for a limited set of adjustment kinds
 
-- TypeScript for the API server, worker orchestration, CLI, schemas, and validation tooling.
-- Optional Python only for narrow ML or image-analysis experiments that benefit from the Python ecosystem.
+What does not exist yet:
+- a broad darktable editing surface
+- HTTP/API orchestration as the primary interface
+- truthful support for every recipe adjustment already named in the contract
+- fork-only editing features such as retouch or liquify in the CLI
 
-## Working rules
+## Core Features
 
-- Prefer dependency injection and explicit interfaces around class-based code.
-- Keep API contracts strict: avoid ambiguous optional inputs, defaults, and fallbacks.
-- Run `bun run check` before merge; the local hooks do this automatically on commit.
-- Run `bun run test:integration` on machines with `darktable-cli` and `darktable` installed when you need the fixture-backed RAW regression coverage.
+- `capabilities` returns JSON describing the supported recipe adjustment surface and broader darktable-native capability map
+- `smoke` runs a real fixture-backed `darktable-cli` export and records the result
+- `render-preview` compiles supported recipes into XMP sidecars and renders a preview image through `darktable-cli`
+- successful runs return JSON-only payloads with canonical artifact paths and execution diagnostics
+- smoke and preview runs use separate runtime directories, so they can run concurrently without clobbering each other
 
-## CLI entry point
+## Supported Adjustment Surface
 
-- Canonical entry point: `bun run cli -- <command>`
-- Current commands are documented in `docs/cli.md`
-- Agent iteration loop is documented in `docs/agent-feedback-loop.md`
+The current preview compiler supports these `DevelopRecipe` adjustment kinds:
+- `crop`
+- `exposure`
+- `contrast`
+- `saturation`
+- `vibrance`
+- `highlights`
+- `shadows`
+- `blackPoint`
+- `whitePoint`
+- `temperature` + `tint` as a required pair
 
-Useful commands:
+The contract also includes `whites` and `blacks`, but preview compilation does not support them yet. Those requests fail explicitly instead of being mapped to a misleading darktable control.
+
+## Stock darktable vs fork-required tooling
+
+| Area | Works with stock packaged darktable | Requires `cgasgarth/darktable` or helper tooling from that fork |
+| --- | --- | --- |
+| `help` and `capabilities` | Yes | No |
+| `smoke` against supported fixtures | Yes, with `darktable-cli` and `darktable` on `PATH` | No |
+| `render-preview` for `crop`, `exposure`, `contrast`, `saturation`, `vibrance`, `highlights`, `shadows`, `blackPoint`, `whitePoint` | Yes | No |
+| `render-preview` for `temperature` + `tint` | No | Yes - darktableAI resolves truthful temperature-module params through `darktable-wb-resolve`, expected at `../darktable/build/bin/darktable-wb-resolve` |
+| retouch / spot removal / liquify style controls | No | These are marked `fork-required` in capabilities, but they are not implemented in the CLI yet |
+
+Notes:
+- `blackPoint` and `whitePoint` are truthful `rgblevels` endpoint controls, not aliases for generic `blacks` or `whites`.
+- The optional `legacy-sony-a7m5-fixture` may not decode on packaged darktable builds.
+
+## Prerequisites
+
+- Bun `>=1.3.6`
+- `darktable-cli` and `darktable` installed and available on `PATH`
+- for white balance preview recipes, a build of `cgasgarth/darktable` with `darktable-wb-resolve` at `../darktable/build/bin/darktable-wb-resolve`
+
+## Installation and Setup
+
+```bash
+bun install
+bun run cli -- help
+bun run cli -- capabilities
+```
+
+If you want to run preview recipes that include `temperature` and `tint`, build the sibling darktable fork first so the helper binary exists where the compiler expects it.
+
+## CLI Usage
+
+Entry point:
+
+```bash
+bun run cli -- <command>
+```
+
+Common commands:
 
 ```bash
 bun run cli -- help
@@ -38,55 +89,60 @@ bun run cli -- smoke --fixture sample-fixture
 bun run cli -- render-preview --recipe-file examples/recipes/sample-develop-recipe.json
 ```
 
-Canonical agent loop:
-
+Typical preview loop:
 1. Write or update a recipe JSON file.
 2. Run `bun run cli -- render-preview --recipe-file <path>`.
-3. Parse the JSON success payload from stdout.
-4. Inspect the returned `manifestPath`, `outputImagePath`, `sourceAssetPath`, and `compiledArtifactPath`.
-5. Revise the recipe and rerun.
+3. Read the JSON response from stdout.
+4. Inspect `manifestPath`, `compiledArtifactPath`, `outputImagePath`, and `diagnostics`.
+5. Revise the recipe and run again.
 
-Example preview success payload:
+See `docs/cli.md` for command details and `docs/agent-feedback-loop.md` for the current iteration model.
 
-```json
-{
-  "requestId": "6d5bd55b-0e96-4d5e-b61b-c2c6a46e6af8",
-  "status": "ok",
-  "manifestId": "preview-manifest-123",
-  "manifestPath": "/repo/artifacts/manifests/preview-manifest-123.json",
-  "outputImagePath": "/repo/artifacts/preview/preview-manifest-123-preview.jpg",
-  "sourceAssetPath": "/repo/assets/_DSC8809.ARW",
-  "compiledArtifactPath": "/repo/artifacts/preview/recipes/compile-123.xmp",
-  "diagnostics": {
-    "binaryPath": "/usr/bin/darktable-cli",
-    "commandArguments": ["/usr/bin/darktable-cli", "..."],
-    "runtimeState": {
-      "rootDirectory": "/repo/artifacts/runtime/preview-manifest-123",
-      "configDirectory": "/repo/artifacts/runtime/preview-manifest-123/config",
-      "cacheDirectory": "/repo/artifacts/runtime/preview-manifest-123/cache",
-      "temporaryDirectory": "/repo/artifacts/runtime/preview-manifest-123/tmp",
-      "libraryPath": "/repo/artifacts/runtime/preview-manifest-123/library.db"
-    },
-    "exitCode": 0
-  }
-}
+## Recipe Model
+
+`DevelopRecipe` currently contains:
+- `recipeId`
+- `sourceAssetPath`
+- `adjustments`
+
+Important validation rules:
+- recipes must include at least one adjustment
+- adjustment kinds cannot be duplicated
+- crop bounds must be normalized and stay within `[0, 1]`
+- `blackPoint` and `whitePoint` must stay normalized with `blackPoint < whitePoint`
+- `temperature` and `tint` must appear together
+
+A working sample recipe lives at `examples/recipes/sample-develop-recipe.json`.
+
+## Development Workflow
+
+```bash
+bun run check
 ```
 
-Current status:
+That command runs:
+- `bun run lint`
+- `bun run lint:max-lines`
+- `bun run typecheck`
+- `bun run test`
 
-- `help` lists the current CLI surface: `help`, `capabilities`, `smoke`, `render-preview`.
-- `capabilities` prints JSON-only capability data with both recipe-level `adjustments` support and broader `darktableNative` coverage.
-- `smoke` performs a real `darktable-cli` run and returns deterministic manifest and artifact paths.
-- `render-preview` compiles supported develop recipes into generated darktable XMP sidecars and renders them with `darktable-cli`.
-- `smoke` and `render-preview` use isolated darktable runtime directories, so concurrent smoke + preview runs succeed without clobbering each other.
-- Supported preview adjustments: `crop`, `exposure`, `contrast`, `saturation`, `vibrance`, `highlights`, `shadows`, paired `temperature` + `tint`, and truthful `blackPoint` / `whitePoint` endpoint control via `rgblevels`.
-- `temperature` and `tint` must be present together in the same recipe so darktableAI can resolve truthful darktable temperature-module params from image metadata.
-- Preview remains unsupported for generic `whites` and `blacks`; unsupported kinds fail explicitly instead of silently mapping them to `rgblevels`.
-- Successful `smoke` and `render-preview` responses stay JSON-only and include diagnostics with runtime paths plus the exact darktable command arguments used for the run.
+Integration coverage that exercises real darktable rendering is available separately:
 
-## Near-term goals
+```bash
+bun run test:integration
+```
 
-1. Define the canonical `DevelopRecipe` schema.
-2. Expand preview coverage beyond the current crop, tone, and color adjustment set.
-3. Add richer automated feedback artifacts on top of the CLI loop.
-4. Add reproducible validation manifests for every run.
+Use that integration suite when you change darktable execution, fixture handling, recipe compilation, or artifact layout on a machine with darktable installed.
+
+## Contributing
+
+Contributions are welcome, but keep changes aligned with the current MVP scope.
+
+Expectations:
+- keep the CLI and contracts explicit; do not add ambiguous defaults or silent fallbacks
+- prefer truthful darktable mappings over approximate or invented behavior
+- update docs when the command surface or supported adjustment set changes
+- run `bun run check` before opening a PR
+- open changes from a feature branch and target `main`
+
+If you add or change darktable-facing behavior, include tests that cover the affected contract or compiler path.
