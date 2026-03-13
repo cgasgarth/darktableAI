@@ -1,0 +1,13 @@
+{
+  "recipeId": "crop-recipe",
+  "sourceAssetPath": "../../../_DSC8809.ARW",
+  "adjustments": [
+    {
+      "kind": "crop",
+      "left": 0.08,
+      "top": 0.12,
+      "width": 0.78,
+      "height": 0.66
+    }
+  ]
+}

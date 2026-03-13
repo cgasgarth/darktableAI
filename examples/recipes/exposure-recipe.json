@@ -1,0 +1,10 @@
+{
+  "recipeId": "exposure-recipe",
+  "sourceAssetPath": "../../../_DSC8809.ARW",
+  "adjustments": [
+    {
+      "kind": "exposure",
+      "exposure": 0.3
+    }
+  ]
+}
