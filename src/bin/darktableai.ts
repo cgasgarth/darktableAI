@@ -129,7 +129,7 @@ function getHelpText(): string {
     "  bun run cli -- live-session-snapshot",
     "  bun run cli -- live-set-exposure --exposure <ev>",
     "  bun run cli -- live-set-exposure --exposure <ev> --timeout-ms <ms> --poll-interval-ms <ms>",
-    "  bun run cli -- live-module-instance-action --instance-key <key> --action <enable|disable>",
+    "  bun run cli -- live-module-instance-action --instance-key <key> --action <enable|disable|create|duplicate>",
     "",
     "Examples:",
     "  bun run cli -- capabilities",
@@ -139,6 +139,7 @@ function getHelpText(): string {
     "  bun run cli -- live-session-snapshot",
     "  bun run cli -- live-set-exposure --exposure 0.5 --timeout-ms 1500 --poll-interval-ms 100",
     "  bun run cli -- live-module-instance-action --instance-key exposure#0#0# --action disable",
+    "  bun run cli -- live-module-instance-action --instance-key exposure#0#0# --action duplicate",
     "",
     "Success responses print JSON on stdout. Failures print human-readable errors on stderr."
   ].join("\n");

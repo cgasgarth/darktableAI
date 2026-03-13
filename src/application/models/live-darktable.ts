@@ -103,28 +103,50 @@ export type LiveDarktableUnavailableReason =
   | "module-action-failed"
   | "snapshot-unavailable";
 
-export type LiveDarktableModuleInstanceAction = "enable" | "disable";
+export type LiveDarktableToggleModuleInstanceAction = "enable" | "disable";
 
-export interface LiveDarktableModuleInstanceActionResult {
+export type LiveDarktableForkModuleInstanceAction = "create" | "duplicate";
+
+export type LiveDarktableModuleInstanceAction =
+  | LiveDarktableToggleModuleInstanceAction
+  | LiveDarktableForkModuleInstanceAction;
+
+interface LiveDarktableModuleInstanceActionResultCommon {
   readonly targetInstanceKey: string;
   readonly action: LiveDarktableModuleInstanceAction;
-  readonly requestedEnabled: boolean;
   readonly moduleOp: string;
   readonly iopOrder: number;
   readonly multiPriority: number;
   readonly multiName: string;
-  readonly previousEnabled: boolean;
-  readonly currentEnabled: boolean;
-  readonly changed: boolean;
   readonly historyBefore: number;
   readonly historyAfter: number;
   readonly requestedHistoryEnd: number;
 }
 
+export interface LiveDarktableToggleModuleInstanceActionResult
+  extends LiveDarktableModuleInstanceActionResultCommon {
+  readonly action: LiveDarktableToggleModuleInstanceAction;
+  readonly requestedEnabled: boolean;
+  readonly previousEnabled: boolean;
+  readonly currentEnabled: boolean;
+  readonly changed: boolean;
+}
+
+export interface LiveDarktableForkModuleInstanceActionResult
+  extends LiveDarktableModuleInstanceActionResultCommon {
+  readonly action: LiveDarktableForkModuleInstanceAction;
+  readonly resultInstanceKey: string;
+}
+
+export type LiveDarktableModuleInstanceActionResult =
+  | LiveDarktableToggleModuleInstanceActionResult
+  | LiveDarktableForkModuleInstanceActionResult;
+
 export interface LiveDarktableUnavailableModuleInstanceActionResult {
   readonly targetInstanceKey: string;
   readonly action: string;
   readonly requestedEnabled?: boolean;
+  readonly resultInstanceKey?: string;
   readonly moduleOp?: string;
   readonly iopOrder?: number;
   readonly multiPriority?: number;

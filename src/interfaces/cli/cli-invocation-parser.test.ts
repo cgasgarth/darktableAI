@@ -103,6 +103,38 @@ describe("StrictCliInvocationParser", () => {
     });
   });
 
+  test("parses live-module-instance-action create and duplicate actions", () => {
+    const parser = new StrictCliInvocationParser();
+
+    expect(
+      parser.parse([
+        "live-module-instance-action",
+        "--instance-key",
+        "exposure#0#0#",
+        "--action",
+        "create"
+      ])
+    ).toEqual({
+      kind: "live-module-instance-action",
+      instanceKey: "exposure#0#0#",
+      action: "create"
+    });
+
+    expect(
+      parser.parse([
+        "live-module-instance-action",
+        "--instance-key",
+        "exposure#0#0#",
+        "--action",
+        "duplicate"
+      ])
+    ).toEqual({
+      kind: "live-module-instance-action",
+      instanceKey: "exposure#0#0#",
+      action: "duplicate"
+    });
+  });
+
   test("rejects extra args for capabilities command", () => {
     const parser = new StrictCliInvocationParser();
 
@@ -132,6 +164,6 @@ describe("StrictCliInvocationParser", () => {
         "--action",
         "toggle"
       ])
-    ).toThrow("Option '--action' must be 'enable' or 'disable'.");
+    ).toThrow("Option '--action' must be 'enable', 'disable', 'create', or 'duplicate'.");
   });
 });

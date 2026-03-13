@@ -12,7 +12,7 @@ interface ApplyLiveDarktableModuleInstanceActionPort {
 export interface RunLiveModuleInstanceActionCommandInput {
   readonly requestId: string;
   readonly instanceKey: string;
-  readonly action: "enable" | "disable";
+  readonly action: "enable" | "disable" | "create" | "duplicate";
 }
 
 export class RunLiveModuleInstanceActionCommand

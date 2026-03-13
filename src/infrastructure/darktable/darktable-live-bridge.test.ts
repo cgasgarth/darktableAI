@@ -294,13 +294,14 @@ describe("DarktableLiveBridge", (): void => {
           "/opt/darktable/build/bin/darktable-live-bridge",
           "apply-module-instance-action",
           "exposure#0#0#",
-          "disable"
-        ],
-        exitCode: 0,
-        elapsedMilliseconds: 13
+        "disable"
+      ],
+      exitCode: 0,
+      elapsedMilliseconds: 13
       }
     });
   });
+
 });
 
 class StubProcessRunner {

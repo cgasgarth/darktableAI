@@ -139,6 +139,7 @@ describe("DarktableLiveBridgeResponseParser module actions", (): void => {
 
   test.each([
     "unsupported-module-action",
+    "unsupported-module-state",
     "module-action-failed",
     "snapshot-unavailable"
   ] as const)("parses unavailable reason '%s'", (reason): void => {
@@ -254,6 +255,7 @@ function createSnapshot(enabled: boolean): {
     ]
   } as const;
 }
+
 
 function createSnapshotItem(enabled: boolean): {
   readonly instanceKey: "exposure#0#0#";
