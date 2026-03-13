@@ -87,6 +87,15 @@ async function run(): Promise<never> {
 
       return handleCommandResult(result);
     }
+    case "live-module-instance-action": {
+      const result = await services.runLiveModuleInstanceActionCommand.execute({
+        requestId: crypto.randomUUID(),
+        instanceKey: invocation.instanceKey,
+        action: invocation.action
+      });
+
+      return handleCommandResult(result);
+    }
   }
 }
 
@@ -120,6 +129,7 @@ function getHelpText(): string {
     "  bun run cli -- live-session-snapshot",
     "  bun run cli -- live-set-exposure --exposure <ev>",
     "  bun run cli -- live-set-exposure --exposure <ev> --timeout-ms <ms> --poll-interval-ms <ms>",
+    "  bun run cli -- live-module-instance-action --instance-key <key> --action <enable|disable>",
     "",
     "Examples:",
     "  bun run cli -- capabilities",
@@ -128,6 +138,7 @@ function getHelpText(): string {
     "  bun run cli -- live-session-info",
     "  bun run cli -- live-session-snapshot",
     "  bun run cli -- live-set-exposure --exposure 0.5 --timeout-ms 1500 --poll-interval-ms 100",
+    "  bun run cli -- live-module-instance-action --instance-key exposure#0#0# --action disable",
     "",
     "Success responses print JSON on stdout. Failures print human-readable errors on stderr."
   ].join("\n");

@@ -5,7 +5,8 @@ export type CliInvocation =
   | CapabilitiesCliInvocation
   | LiveSessionInfoCliInvocation
   | LiveSessionSnapshotCliInvocation
-  | LiveSetExposureCliInvocation;
+  | LiveSetExposureCliInvocation
+  | LiveModuleInstanceActionCliInvocation;
 
 export interface HelpCliInvocation {
   readonly kind: "help";
@@ -31,6 +32,12 @@ export interface LiveSessionInfoCliInvocation {
 
 export interface LiveSessionSnapshotCliInvocation {
   readonly kind: "live-session-snapshot";
+}
+
+export interface LiveModuleInstanceActionCliInvocation {
+  readonly kind: "live-module-instance-action";
+  readonly instanceKey: string;
+  readonly action: "enable" | "disable";
 }
 
 export type LiveSetExposureCliInvocation =

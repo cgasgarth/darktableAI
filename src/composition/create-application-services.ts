@@ -1,4 +1,5 @@
 import { StrictDevelopRecipeValidator } from "../contracts/develop-recipe";
+import { ApplyLiveDarktableModuleInstanceAction } from "../application/use-cases/apply-live-darktable-module-instance-action";
 import { CreatePreviewRender } from "../application/use-cases/create-preview-render";
 import { GetLiveDarktableSnapshot } from "../application/use-cases/get-live-darktable-snapshot";
 import { GetLiveDarktableSession } from "../application/use-cases/get-live-darktable-session";
@@ -6,6 +7,7 @@ import { RunDarktableSmokeTest } from "../application/use-cases/run-darktable-sm
 import { SetLiveDarktableExposure } from "../application/use-cases/set-live-darktable-exposure";
 import { RunDarktableSmokeCommand } from "../interfaces/cli/run-darktable-smoke-command";
 import { RunAdjustmentCapabilitiesCommand } from "../interfaces/cli/run-adjustment-capabilities-command";
+import { RunLiveModuleInstanceActionCommand } from "../interfaces/cli/run-live-module-instance-action-command";
 import { RunLiveSessionInfoCommand } from "../interfaces/cli/run-live-session-info-command";
 import { RunLiveSessionSnapshotCommand } from "../interfaces/cli/run-live-session-snapshot-command";
 import { RunLiveSetExposureCommand } from "../interfaces/cli/run-live-set-exposure-command";
@@ -31,6 +33,7 @@ interface ApplicationServiceContainer {
   readonly runLiveSessionInfoCommand: RunLiveSessionInfoCommand;
   readonly runLiveSessionSnapshotCommand: RunLiveSessionSnapshotCommand;
   readonly runLiveSetExposureCommand: RunLiveSetExposureCommand;
+  readonly runLiveModuleInstanceActionCommand: RunLiveModuleInstanceActionCommand;
 }
 
 export const createApplicationServices = (): ApplicationServiceContainer => {
@@ -83,6 +86,7 @@ export const createApplicationServices = (): ApplicationServiceContainer => {
 
   const getLiveDarktableSession = new GetLiveDarktableSession(liveBridge);
   const getLiveDarktableSnapshot = new GetLiveDarktableSnapshot(liveBridge);
+  const applyLiveDarktableModuleInstanceAction = new ApplyLiveDarktableModuleInstanceAction(liveBridge);
   const setLiveDarktableExposure = new SetLiveDarktableExposure(
     liveBridge,
     systemClock,
@@ -101,6 +105,9 @@ export const createApplicationServices = (): ApplicationServiceContainer => {
   const runLiveSessionInfoCommand = new RunLiveSessionInfoCommand(getLiveDarktableSession);
   const runLiveSessionSnapshotCommand = new RunLiveSessionSnapshotCommand(getLiveDarktableSnapshot);
   const runLiveSetExposureCommand = new RunLiveSetExposureCommand(setLiveDarktableExposure);
+  const runLiveModuleInstanceActionCommand = new RunLiveModuleInstanceActionCommand(
+    applyLiveDarktableModuleInstanceAction
+  );
 
   return {
     createPreviewRenderCommand,
@@ -108,6 +115,7 @@ export const createApplicationServices = (): ApplicationServiceContainer => {
     runAdjustmentCapabilitiesCommand,
     runLiveSessionInfoCommand,
     runLiveSessionSnapshotCommand,
-    runLiveSetExposureCommand
+    runLiveSetExposureCommand,
+    runLiveModuleInstanceActionCommand
   };
 };

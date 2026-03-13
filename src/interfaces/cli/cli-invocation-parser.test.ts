@@ -85,6 +85,24 @@ describe("StrictCliInvocationParser", () => {
     });
   });
 
+  test("parses live-module-instance-action with snapshot instance keys", () => {
+    const parser = new StrictCliInvocationParser();
+
+    expect(
+      parser.parse([
+        "live-module-instance-action",
+        "--instance-key",
+        "exposure#0#0#",
+        "--action",
+        "disable"
+      ])
+    ).toEqual({
+      kind: "live-module-instance-action",
+      instanceKey: "exposure#0#0#",
+      action: "disable"
+    });
+  });
+
   test("rejects extra args for capabilities command", () => {
     const parser = new StrictCliInvocationParser();
 
@@ -101,5 +119,19 @@ describe("StrictCliInvocationParser", () => {
     ).toThrow(
       "Command 'live-set-exposure' requires both '--timeout-ms' and '--poll-interval-ms' when waiting for render completion."
     );
+  });
+
+  test("rejects unsupported live-module-instance-action values", () => {
+    const parser = new StrictCliInvocationParser();
+
+    expect(() =>
+      parser.parse([
+        "live-module-instance-action",
+        "--instance-key",
+        "exposure#0#0#",
+        "--action",
+        "toggle"
+      ])
+    ).toThrow("Option '--action' must be 'enable' or 'disable'.");
   });
 });

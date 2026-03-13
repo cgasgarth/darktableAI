@@ -3,10 +3,12 @@ import path from "node:path";
 import type {
   LiveDarktableCommandDiagnostics,
   LiveDarktableExposureMutation,
+  LiveDarktableModuleInstanceActionMutation,
   LiveDarktableSnapshotReadback,
   LiveDarktableSessionSnapshot
 } from "../../application/models/live-darktable";
 import type {
+  ApplyLiveDarktableModuleInstanceActionRequest,
   LiveDarktableSessionGateway,
   SetLiveDarktableExposureRequest
 } from "../../application/ports/live-darktable-session-gateway";
@@ -44,6 +46,18 @@ export class DarktableLiveBridge implements LiveDarktableSessionGateway {
   ): Promise<LiveDarktableExposureMutation> {
     const execution = await this.runBridgeCommand(["set-exposure", String(request.exposure)]);
     return this.parser.parseSetExposure(execution.stdout, execution.diagnostics);
+  }
+
+  public async applyModuleInstanceAction(
+    request: ApplyLiveDarktableModuleInstanceActionRequest
+  ): Promise<LiveDarktableModuleInstanceActionMutation> {
+    const execution = await this.runBridgeCommand([
+      "apply-module-instance-action",
+      request.instanceKey,
+      request.action
+    ]);
+
+    return this.parser.parseApplyModuleInstanceAction(execution.stdout, execution.diagnostics);
   }
 
   public static createDefaultRuntime(

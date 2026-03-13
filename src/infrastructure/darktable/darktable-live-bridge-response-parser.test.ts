@@ -142,5 +142,4 @@ describe("DarktableLiveBridgeResponseParser", (): void => {
       )
     ).toThrow("darktable-live-bridge field 'exposure.requestedRenderSequence' must be an integer.");
   });
-
 });
