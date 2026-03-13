@@ -148,6 +148,45 @@ describe("StrictCliInvocationParser", () => {
     ).toThrow("Option '--reverse-order' must be 'true' or 'false'.");
   });
 
+  test("parses live-module-mask-action clear-mask", () => {
+    const parser = new StrictCliInvocationParser();
+
+    expect(
+      parser.parse([
+        "live-module-mask-action",
+        "--instance-key",
+        "colorbalancergb#7#1#",
+        "--action",
+        "clear-mask"
+      ])
+    ).toEqual({
+      kind: "live-module-mask-action",
+      instanceKey: "colorbalancergb#7#1#",
+      action: "clear-mask"
+    });
+  });
+
+  test("parses live-module-mask-action reuse-same-shapes", () => {
+    const parser = new StrictCliInvocationParser();
+
+    expect(
+      parser.parse([
+        "live-module-mask-action",
+        "--instance-key",
+        "colorbalancergb#7#1#",
+        "--action",
+        "reuse-same-shapes",
+        "--source-instance-key",
+        "exposure#0#0#"
+      ])
+    ).toEqual({
+      kind: "live-module-mask-action",
+      instanceKey: "colorbalancergb#7#1#",
+      action: "reuse-same-shapes",
+      sourceInstanceKey: "exposure#0#0#"
+    });
+  });
+
   test("parses live-module-instance-action with snapshot-style instance keys", () => {
     const parser = new StrictCliInvocationParser();
 

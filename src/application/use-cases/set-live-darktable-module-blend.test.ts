@@ -173,6 +173,10 @@ class StubGateway {
     return Promise.resolve(this.mutation);
   }
 
+  public applyModuleInstanceMask(): Promise<never> {
+    throw new Error("Unexpected applyModuleInstanceMask call.");
+  }
+
   public applyModuleInstanceAction(): Promise<LiveDarktableModuleInstanceActionMutation> {
     throw new Error("Unexpected applyModuleInstanceAction call.");
   }

@@ -100,6 +100,24 @@ async function run(): Promise<never> {
 
       return handleCommandResult(result);
     }
+    case "live-module-mask-action": {
+      const result = await services.runLiveModuleMaskActionCommand.execute(
+        invocation.action === "reuse-same-shapes"
+          ? {
+              requestId: crypto.randomUUID(),
+              instanceKey: invocation.instanceKey,
+              action: invocation.action,
+              sourceInstanceKey: invocation.sourceInstanceKey
+            }
+          : {
+              requestId: crypto.randomUUID(),
+              instanceKey: invocation.instanceKey,
+              action: invocation.action
+            }
+      );
+
+      return handleCommandResult(result);
+    }
     case "live-module-instance-action": {
       const result = await services.runLiveModuleInstanceActionCommand.execute(
         invocation.action === "move-before" || invocation.action === "move-after"
@@ -155,6 +173,8 @@ function getHelpText(): string {
     "  bun run cli -- live-set-module-blend --instance-key <key> --blend-mode <machine-name>",
     "  bun run cli -- live-set-module-blend --instance-key <key> --reverse-order <true|false>",
     "  bun run cli -- live-set-module-blend --instance-key <key> --opacity <percent> --blend-mode <machine-name> --reverse-order <true|false>",
+    "  bun run cli -- live-module-mask-action --instance-key <key> --action clear-mask",
+    "  bun run cli -- live-module-mask-action --instance-key <key> --action reuse-same-shapes --source-instance-key <key>",
     "  bun run cli -- live-module-instance-action --instance-key <key> --action <enable|disable|create|duplicate|delete>",
     "  bun run cli -- live-module-instance-action --instance-key <key> --action <move-before|move-after> --anchor-instance-key <key>",
     "",
@@ -169,6 +189,8 @@ function getHelpText(): string {
     "  bun run cli -- live-set-module-blend --instance-key colorbalancergb#7#1# --blend-mode multiply",
     "  bun run cli -- live-set-module-blend --instance-key colorbalancergb#7#1# --reverse-order true",
     "  bun run cli -- live-set-module-blend --instance-key colorbalancergb#7#1# --opacity 62 --blend-mode softlight --reverse-order false",
+    "  bun run cli -- live-module-mask-action --instance-key colorbalancergb#7#1# --action clear-mask",
+    "  bun run cli -- live-module-mask-action --instance-key colorbalancergb#7#1# --action reuse-same-shapes --source-instance-key exposure#0#0#",
     "  bun run cli -- live-module-instance-action --instance-key exposure#0#0# --action disable",
     "  bun run cli -- live-module-instance-action --instance-key exposure#0#0# --action duplicate",
     "  bun run cli -- live-module-instance-action --instance-key colorbalancergb#7#1# --action delete",

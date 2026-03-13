@@ -8,7 +8,9 @@ import type {
   LiveDarktableSnapshotReadback,
   LiveDarktableSessionSnapshot
 } from "../../application/models/live-darktable";
+import type { LiveDarktableModuleMaskMutation } from "../../application/models/live-darktable-module-mask";
 import type {
+  ApplyLiveDarktableModuleMaskActionRequest,
   ApplyLiveDarktableModuleInstanceActionRequest,
   LiveDarktableSessionGateway,
   SetLiveDarktableExposureRequest,
@@ -65,6 +67,22 @@ export class DarktableLiveBridge implements LiveDarktableSessionGateway {
     ]);
 
     return this.parser.parseApplyModuleInstanceBlend(execution.stdout, execution.diagnostics);
+  }
+
+  public async applyModuleInstanceMask(
+    request: ApplyLiveDarktableModuleMaskActionRequest
+  ): Promise<LiveDarktableModuleMaskMutation> {
+    const maskPayload =
+      request.action === "reuse-same-shapes"
+        ? { action: request.action, sourceInstanceKey: request.sourceInstanceKey }
+        : { action: request.action };
+    const execution = await this.runBridgeCommand([
+      "apply-module-instance-mask",
+      request.instanceKey,
+      JSON.stringify(maskPayload)
+    ]);
+
+    return this.parser.parseApplyModuleInstanceMask(execution.stdout, execution.diagnostics);
   }
 
   public async applyModuleInstanceAction(

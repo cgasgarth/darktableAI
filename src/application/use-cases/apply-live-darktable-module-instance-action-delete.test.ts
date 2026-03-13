@@ -78,6 +78,10 @@ class StubGateway {
     throw new Error("Unexpected applyModuleInstanceBlend call.");
   }
 
+  public applyModuleInstanceMask(): Promise<never> {
+    throw new Error("Unexpected applyModuleInstanceMask call.");
+  }
+
   public applyModuleInstanceAction(request: {
     readonly instanceKey: string;
     readonly action: "delete";
