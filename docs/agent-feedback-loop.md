@@ -6,7 +6,7 @@ If the editing surface is CLI-first, then yes: we need an explicit feedback loop
 
 1. Write or update a `DevelopRecipe` JSON file.
 2. Run `bun run cli -- render-preview --recipe-file <path>`.
-3. Parse stdout JSON and capture `manifestPath`, `outputImagePath`, `sourceAssetPath`, and `compiledArtifactPath`.
+3. Parse stdout JSON and capture `manifestPath`, `outputImagePath`, `sourceAssetPath`, `compiledArtifactPath`, and `diagnostics.runtimeState`.
 4. Inspect the manifest plus returned artifacts directly from those paths.
 5. Rewrite the recipe JSON and run again.
 6. Periodically run `bun run cli -- smoke --fixture sample-fixture` to verify the darktable worker path is still healthy.
@@ -22,7 +22,19 @@ Example preview response:
   "manifestPath": "/repo/artifacts/manifests/preview-manifest-123.json",
   "outputImagePath": "/repo/artifacts/preview/preview-manifest-123-preview.jpg",
   "sourceAssetPath": "/repo/_DSC8809.ARW",
-  "compiledArtifactPath": "/repo/artifacts/preview/recipes/compile-123.xmp"
+  "compiledArtifactPath": "/repo/artifacts/preview/recipes/compile-123.xmp",
+  "diagnostics": {
+    "binaryPath": "/usr/bin/darktable-cli",
+    "commandArguments": ["/usr/bin/darktable-cli", "..."],
+    "runtimeState": {
+      "rootDirectory": "/repo/artifacts/runtime/preview-manifest-123",
+      "configDirectory": "/repo/artifacts/runtime/preview-manifest-123/config",
+      "cacheDirectory": "/repo/artifacts/runtime/preview-manifest-123/cache",
+      "temporaryDirectory": "/repo/artifacts/runtime/preview-manifest-123/tmp",
+      "libraryPath": "/repo/artifacts/runtime/preview-manifest-123/library.db"
+    },
+    "exitCode": 0
+  }
 }
 ```
 
@@ -32,7 +44,7 @@ The loop also supports concurrent `smoke` and `render-preview` runs because each
 
 ## What already exists
 
-- a `capabilities` command that returns JSON-only support metadata for the current preview compiler
+- a `capabilities` command that returns JSON-only recipe-level `adjustments` support plus broader `darktableNative` coverage
 - a stable CLI surface for smoke testing
 - a single canonical CLI entry point
 - manifest writing for runs
