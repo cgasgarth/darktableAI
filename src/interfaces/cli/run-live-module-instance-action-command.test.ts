@@ -65,6 +65,7 @@ describe("RunLiveModuleInstanceActionCommand", (): void => {
                   iopOrder: 12,
                   multiPriority: 0,
                   multiName: "0",
+                  blend: { supported: false, masksSupported: false },
                   params: {
                     encoding: "unsupported" as const
                   }
@@ -80,6 +81,7 @@ describe("RunLiveModuleInstanceActionCommand", (): void => {
                   iopOrder: 12,
                   multiPriority: 0,
                   multiName: "0",
+                  blend: { supported: false, masksSupported: false },
                   params: {
                     encoding: "unsupported" as const
                   }
@@ -151,6 +153,7 @@ describe("RunLiveModuleInstanceActionCommand", (): void => {
                   iopOrder: 12,
                   multiPriority: 0,
                   multiName: "0",
+                  blend: { supported: false, masksSupported: false },
                   params: {
                     encoding: "unsupported" as const
                   }
@@ -166,6 +169,7 @@ describe("RunLiveModuleInstanceActionCommand", (): void => {
                   iopOrder: 12,
                   multiPriority: 0,
                   multiName: "0",
+                  blend: { supported: false, masksSupported: false },
                   params: {
                     encoding: "unsupported" as const
                   }
@@ -250,6 +254,7 @@ describe("RunLiveModuleInstanceActionCommand", (): void => {
               iopOrder: 12,
               multiPriority: 0,
               multiName: "0",
+              blend: { supported: false, masksSupported: false },
               params: {
                 encoding: "unsupported"
               }
@@ -265,6 +270,7 @@ describe("RunLiveModuleInstanceActionCommand", (): void => {
               iopOrder: 12,
               multiPriority: 0,
               multiName: "0",
+              blend: { supported: false, masksSupported: false },
               params: {
                 encoding: "unsupported"
               }

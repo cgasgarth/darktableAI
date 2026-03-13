@@ -1,6 +1,7 @@
 import type {
   LiveDarktableDeleteModuleInstanceAction,
   LiveDarktableForkModuleInstanceAction,
+  LiveDarktableModuleBlendMutation,
   LiveDarktableModuleInstanceActionMutation,
   LiveDarktableReorderModuleInstanceAction,
   LiveDarktableToggleModuleInstanceAction,
@@ -24,13 +25,19 @@ export type ApplyLiveDarktableModuleInstanceActionRequest =
   | {
       readonly instanceKey: string;
       readonly action: LiveDarktableReorderModuleInstanceAction;
-      readonly anchorInstanceKey: string;
+    readonly anchorInstanceKey: string;
     };
+
+export interface SetLiveDarktableModuleBlendRequest {
+  readonly instanceKey: string;
+  readonly opacity: number;
+}
 
 export interface LiveDarktableSessionGateway {
   getSession(): Promise<LiveDarktableSessionSnapshot>;
   getSnapshot(): Promise<LiveDarktableSnapshotReadback>;
   setExposure(request: SetLiveDarktableExposureRequest): Promise<LiveDarktableExposureMutation>;
+  applyModuleInstanceBlend(request: SetLiveDarktableModuleBlendRequest): Promise<LiveDarktableModuleBlendMutation>;
   applyModuleInstanceAction(
     request: ApplyLiveDarktableModuleInstanceActionRequest
   ): Promise<LiveDarktableModuleInstanceActionMutation>;

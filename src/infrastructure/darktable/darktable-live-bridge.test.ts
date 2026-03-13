@@ -177,6 +177,7 @@ describe("DarktableLiveBridge", (): void => {
                 iopOrder: 12,
                 multiPriority: 0,
                 multiName: "0",
+                blend: { supported: false, masksSupported: false },
                 params: { encoding: "unsupported" }
               }
             ],
@@ -190,6 +191,7 @@ describe("DarktableLiveBridge", (): void => {
                 iopOrder: 12,
                 multiPriority: 0,
                 multiName: "0",
+                blend: { supported: false, masksSupported: false },
                 params: { encoding: "unsupported" }
               }
             ]
@@ -256,6 +258,7 @@ describe("DarktableLiveBridge", (): void => {
             iopOrder: 12,
             multiPriority: 0,
             multiName: "0",
+            blend: { supported: false, masksSupported: false },
             params: { encoding: "unsupported" }
           }
         ],
@@ -269,6 +272,7 @@ describe("DarktableLiveBridge", (): void => {
             iopOrder: 12,
             multiPriority: 0,
             multiName: "0",
+            blend: { supported: false, masksSupported: false },
             params: { encoding: "unsupported" }
           }
         ]

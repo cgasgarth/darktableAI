@@ -167,6 +167,10 @@ class StubGateway {
     throw new Error("Unexpected setExposure call.");
   }
 
+  public applyModuleInstanceBlend(): Promise<never> {
+    throw new Error("Unexpected applyModuleInstanceBlend call.");
+  }
+
   public applyModuleInstanceAction(request: {
     readonly instanceKey: string;
     readonly action: "enable" | "disable" | "create" | "duplicate" | "delete" | "move-before" | "move-after";
@@ -312,6 +316,10 @@ function createModuleState(enabled: boolean, instanceKey = "exposure#0#0#"): {
   readonly iopOrder: 12;
   readonly multiPriority: 0;
   readonly multiName: "0";
+  readonly blend: {
+    readonly supported: false;
+    readonly masksSupported: false;
+  };
   readonly params: {
     readonly encoding: "unsupported";
   };
@@ -323,6 +331,7 @@ function createModuleState(enabled: boolean, instanceKey = "exposure#0#0#"): {
     iopOrder: 12,
     multiPriority: 0,
     multiName: "0",
+    blend: { supported: false, masksSupported: false },
     params: {
       encoding: "unsupported"
     }
@@ -338,6 +347,10 @@ function createHistoryItem(enabled: boolean, instanceKey = "exposure#0#0#"): {
   readonly iopOrder: 12;
   readonly multiPriority: 0;
   readonly multiName: "0";
+  readonly blend: {
+    readonly supported: false;
+    readonly masksSupported: false;
+  };
   readonly params: {
     readonly encoding: "unsupported";
   };

@@ -85,6 +85,24 @@ describe("StrictCliInvocationParser", () => {
     });
   });
 
+  test("parses live-set-module-blend with snapshot-style instance keys", () => {
+    const parser = new StrictCliInvocationParser();
+
+    expect(
+      parser.parse([
+        "live-set-module-blend",
+        "--instance-key",
+        "exposure#0#0#",
+        "--opacity",
+        "75"
+      ])
+    ).toEqual({
+      kind: "live-set-module-blend",
+      instanceKey: "exposure#0#0#",
+      opacity: 75
+    });
+  });
+
   test("parses live-module-instance-action with snapshot-style instance keys", () => {
     const parser = new StrictCliInvocationParser();
 

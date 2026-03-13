@@ -72,6 +72,23 @@ export type LiveDarktableSnapshotParams =
   | LiveDarktableSnapshotParamsIntrospection
   | LiveDarktableSnapshotParamsUnsupported;
 
+export interface LiveDarktableUnsupportedModuleBlendState {
+  readonly supported: false;
+  readonly masksSupported: boolean;
+}
+
+export interface LiveDarktableSupportedModuleBlendState {
+  readonly supported: true;
+  readonly masksSupported: boolean;
+  readonly opacity: number;
+  readonly blendMode: string;
+  readonly reverseOrder: boolean;
+}
+
+export type LiveDarktableSnapshotModuleBlend =
+  | LiveDarktableUnsupportedModuleBlendState
+  | LiveDarktableSupportedModuleBlendState;
+
 export interface LiveDarktableSnapshotModuleState {
   readonly instanceKey: string;
   readonly moduleOp: string;
@@ -79,6 +96,7 @@ export interface LiveDarktableSnapshotModuleState {
   readonly iopOrder: number;
   readonly multiPriority: number;
   readonly multiName: string;
+  readonly blend: LiveDarktableSnapshotModuleBlend;
   readonly params: LiveDarktableSnapshotParams;
 }
 
@@ -99,14 +117,44 @@ export type LiveDarktableUnavailableReason =
   | "no-active-image"
   | "unknown-instance-key"
   | "unknown-anchor-instance-key"
+  | "unsupported-module-blend"
   | "unsupported-module-action"
   | "unsupported-module-state"
   | "module-action-failed"
+  | "module-blend-failed"
   | "module-delete-blocked-last-instance"
   | "module-reorder-blocked-by-fence"
   | "module-reorder-blocked-by-rule"
   | "module-reorder-no-op"
   | "snapshot-unavailable";
+
+export interface LiveDarktableModuleBlendResult {
+  readonly targetInstanceKey: string;
+  readonly moduleOp: string;
+  readonly iopOrder: number;
+  readonly multiPriority: number;
+  readonly multiName: string;
+  readonly previousOpacity: number;
+  readonly requestedOpacity: number;
+  readonly currentOpacity: number;
+  readonly historyBefore: number;
+  readonly historyAfter: number;
+  readonly requestedHistoryEnd: number;
+}
+
+export interface LiveDarktableUnavailableModuleBlendResult {
+  readonly targetInstanceKey: string;
+  readonly moduleOp?: string;
+  readonly iopOrder?: number;
+  readonly multiPriority?: number;
+  readonly multiName?: string;
+  readonly previousOpacity?: number;
+  readonly requestedOpacity?: number;
+  readonly currentOpacity?: number;
+  readonly historyBefore?: number;
+  readonly historyAfter?: number;
+  readonly requestedHistoryEnd?: number;
+}
 
 export type LiveDarktableToggleModuleInstanceAction = "enable" | "disable";
 
@@ -208,6 +256,7 @@ export interface LiveDarktableUnavailableState extends LiveDarktableStateCommon 
   readonly session?: LiveDarktableSessionState;
   readonly activeImage?: LiveDarktableActiveImage;
   readonly moduleAction?: LiveDarktableUnavailableModuleInstanceActionResult;
+  readonly moduleBlend?: LiveDarktableUnavailableModuleBlendResult;
 }
 
 export interface LiveDarktableAvailableSessionState extends LiveDarktableStateCommon {
@@ -239,6 +288,14 @@ export interface LiveDarktableAvailableModuleInstanceActionState extends LiveDar
   readonly snapshot: LiveDarktableSnapshotState;
 }
 
+export interface LiveDarktableAvailableModuleBlendState extends LiveDarktableStateCommon {
+  readonly status: "ok";
+  readonly session: LiveDarktableSessionState;
+  readonly activeImage: LiveDarktableActiveImage;
+  readonly moduleBlend: LiveDarktableModuleBlendResult;
+  readonly snapshot: LiveDarktableSnapshotState;
+}
+
 export type LiveDarktableSessionSnapshot =
   | LiveDarktableAvailableSessionState
   | LiveDarktableUnavailableState;
@@ -253,6 +310,10 @@ export type LiveDarktableSnapshotReadback =
 
 export type LiveDarktableModuleInstanceActionMutation =
   | LiveDarktableAvailableModuleInstanceActionState
+  | LiveDarktableUnavailableState;
+
+export type LiveDarktableModuleBlendMutation =
+  | LiveDarktableAvailableModuleBlendState
   | LiveDarktableUnavailableState;
 
 export interface LiveDarktableSetExposureWaitPolicy {
@@ -281,6 +342,12 @@ export interface LiveDarktableSetExposureResult {
 
 export interface LiveDarktableApplyModuleInstanceActionResult {
   readonly mutation: LiveDarktableModuleInstanceActionMutation;
+  readonly latestSnapshot: LiveDarktableSnapshotReadback;
+  readonly helperCallDiagnostics: ReadonlyArray<LiveDarktableCommandDiagnostics>;
+}
+
+export interface LiveDarktableSetModuleBlendResult {
+  readonly mutation: LiveDarktableModuleBlendMutation;
   readonly latestSnapshot: LiveDarktableSnapshotReadback;
   readonly helperCallDiagnostics: ReadonlyArray<LiveDarktableCommandDiagnostics>;
 }
