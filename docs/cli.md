@@ -29,16 +29,18 @@ Current commands: `help`, `capabilities`, `smoke`, `render-preview`.
 
 ### `capabilities`
 
-Prints JSON-only capability data for the current preview compiler support surface.
+Prints JSON-only capability data for the current preview compiler support surface and broader darktable-native coverage.
 
 ```bash
 bun run cli -- capabilities
 ```
 
 The payload currently reports:
+- top-level `adjustments` support for the recipe contract and top-level `darktableNative` coverage for darktable controls beyond the current recipe surface
 - supported preview adjustments: `crop`, `exposure`, `contrast`, `saturation`, `vibrance`, `highlights`, `shadows`, paired `temperature` + `tint`, `blackPoint`, `whitePoint`
 - planned or unsupported for the current sidecar compiler: `whites`, `blacks`
 - per-adjustment metadata including `status`, `darktableModule`, and `reason`
+- per-darktable-control metadata including `status`, `previewCompilationStatus`, `recipeAdjustmentKinds`, and `reason`
 
 Operator notes:
 - `temperature` and `tint` are truthful darktable temperature-module controls, but recipes must provide both together
@@ -66,6 +68,10 @@ On success, the command prints JSON including:
 - `manifestPath`
 - `outputImagePath`
 - `sourceAssetPath`
+- `diagnostics.binaryPath`
+- `diagnostics.commandArguments`
+- `diagnostics.runtimeState.{rootDirectory,configDirectory,cacheDirectory,temporaryDirectory,libraryPath}`
+- `diagnostics.exitCode`
 
 Example success payload:
 
@@ -77,7 +83,19 @@ Example success payload:
   "manifestId": "smoke-manifest-123",
   "manifestPath": "/repo/artifacts/manifests/smoke-manifest-123.json",
   "outputImagePath": "/repo/artifacts/smoke/smoke-manifest-123-smoke.jpg",
-  "sourceAssetPath": "/repo/_DSC8809.ARW"
+  "sourceAssetPath": "/repo/_DSC8809.ARW",
+  "diagnostics": {
+    "binaryPath": "/usr/bin/darktable-cli",
+    "commandArguments": ["/usr/bin/darktable-cli", "..."],
+    "runtimeState": {
+      "rootDirectory": "/repo/artifacts/runtime/smoke-manifest-123",
+      "configDirectory": "/repo/artifacts/runtime/smoke-manifest-123/config",
+      "cacheDirectory": "/repo/artifacts/runtime/smoke-manifest-123/cache",
+      "temporaryDirectory": "/repo/artifacts/runtime/smoke-manifest-123/tmp",
+      "libraryPath": "/repo/artifacts/runtime/smoke-manifest-123/library.db"
+    },
+    "exitCode": 0
+  }
 }
 ```
 

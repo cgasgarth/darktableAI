@@ -55,14 +55,26 @@ Example preview success payload:
   "manifestPath": "/repo/artifacts/manifests/preview-manifest-123.json",
   "outputImagePath": "/repo/artifacts/preview/preview-manifest-123-preview.jpg",
   "sourceAssetPath": "/repo/_DSC8809.ARW",
-  "compiledArtifactPath": "/repo/artifacts/preview/recipes/compile-123.xmp"
+  "compiledArtifactPath": "/repo/artifacts/preview/recipes/compile-123.xmp",
+  "diagnostics": {
+    "binaryPath": "/usr/bin/darktable-cli",
+    "commandArguments": ["/usr/bin/darktable-cli", "..."],
+    "runtimeState": {
+      "rootDirectory": "/repo/artifacts/runtime/preview-manifest-123",
+      "configDirectory": "/repo/artifacts/runtime/preview-manifest-123/config",
+      "cacheDirectory": "/repo/artifacts/runtime/preview-manifest-123/cache",
+      "temporaryDirectory": "/repo/artifacts/runtime/preview-manifest-123/tmp",
+      "libraryPath": "/repo/artifacts/runtime/preview-manifest-123/library.db"
+    },
+    "exitCode": 0
+  }
 }
 ```
 
 Current status:
 
 - `help` lists the current CLI surface: `help`, `capabilities`, `smoke`, `render-preview`.
-- `capabilities` prints JSON-only capability data for the current preview compiler support surface.
+- `capabilities` prints JSON-only capability data with both recipe-level `adjustments` support and broader `darktableNative` coverage.
 - `smoke` performs a real `darktable-cli` run and returns deterministic manifest and artifact paths.
 - `render-preview` compiles supported develop recipes into generated darktable XMP sidecars and renders them with `darktable-cli`.
 - `smoke` and `render-preview` use isolated darktable runtime directories, so concurrent smoke + preview runs succeed without clobbering each other.
